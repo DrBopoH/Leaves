@@ -1,0 +1,13 @@
+.env
+
+*.sqlite
+*.sqlite
+*.db
+*.db-journal
+
+node_modules/
+dist/
+bin/
+
+*.sublime-project
+*.sublime-workspace
