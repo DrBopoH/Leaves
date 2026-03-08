@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterLink, RouterView, useRoute } from 'vue-router';
+
+const route = useRoute();
 </script>
 
 <template>
@@ -8,8 +10,19 @@ import { RouterLink, RouterView } from 'vue-router';
             <RouterLink to="/">Leaves 🍃</RouterLink>
         </div>
         <nav class="nav-links">
-            <RouterLink to="/signin" class="nav-btn nav-btn-outline">Sign in</RouterLink>
-            <RouterLink to="/signup" class="nav-btn">Sign up</RouterLink>
+            <RouterLink 
+                v-if="route.path !== '/signin'" 
+                to="/signin" 
+                class="nav-btn nav-btn-outline">
+                Sign in
+            </RouterLink>
+            
+            <RouterLink 
+                v-if="route.path !== '/signup'" 
+                to="/signup" 
+                class="nav-btn">
+                Sign up
+            </RouterLink>
         </nav>
     </header>
 
@@ -67,6 +80,7 @@ body {
 
 .nav-btn:hover {
     background-color: #33a06f;
+    box-shadow: 0 0 10px rgba(66, 184, 131, 0.4);
 }
 
 .nav-btn-outline {

@@ -1,133 +1,290 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { registerUser } from '../api/auth';
+import { RouterLink } from 'vue-router';
 
+// Функционал: реактивные переменные для сбора данных
+const username = ref('');
 const email = ref('');
 const password = ref('');
-const message = ref('');
-const isLoading = ref(false)
+const confirmPassword = ref('');
 
-const handleSubmit = async () => {
-	if (!email.value || !password.value) {
-		message.value = 'Заполните все поля!';
-		return;
-	}
-
-	isLoading.value = true;
-	message.value = '';
-
-	try {
-		const result = await registerUser({
-			email: email.value,
-			password: password.value,
-		});
-		
-		message.value = `Успех: ${result}`;
-	} catch (error) {
-		message.value = 'Сервер недоступен или выдал ошибку 😢';
-		console.error(error);
-	} finally {
-		isLoading.value = false;
-	}
+// Функционал: обработка отправки формы
+const handleSubmit = () => {
+    // Здесь позже добавишь свой API запрос
+    console.log('Данные формы:', {
+        username: username.value,
+        email: email.value,
+        password: password.value,
+        confirmPassword: confirmPassword.value
+    });
 };
 </script>
 
 <template>
-	<div class="auth-container">
-		<h2>Регистрация в Leaves 🍃</h2>
-		
-		<form @submit.prevent="handleSubmit">
-			<div class="input-group">
-				<label>Email</label>
-				<input type="email" v-model="email" placeholder="example@mail.com" />
-			</div>
+    <div class="auth-layout">
+        
+        <div class="brand-header">
+            <div class="logo-wrapper">
+                <div class="logo-dot"></div>
+                <h1>Leaves</h1>
+            </div>
+            <p class="brand-subtitle">Create your account and start building your conversations today.</p>
+        </div>
 
-			<div class="input-group">
-				<label>Пароль</label>
-				<input type="password" v-model="password" placeholder="********" />
-			</div>
+        <div class="auth-card">
+            <div class="card-headings">
+                <h2>Get started</h2>
+                <p>Sign up to connect with your communities and start messaging instantly.</p>
+            </div>
 
-			<button type="submit" :disabled="isLoading">
-				{{ isLoading ? 'Загрузка...' : 'Создать аккаунт' }}
-			</button>
-		</form>
+            <form @submit.prevent="handleSubmit" class="form-content">
+                
+                <div class="input-box">
+                    <input type="text" v-model="username" placeholder="username" required />
+                </div>
+                
+                <div class="input-box">
+                    <input type="email" v-model="email" placeholder="example@gmail.com" required />
+                </div>
 
-		<p v-if="message" class="status-message">{{ message }}</p>
-	</div>
+                <div class="input-box has-icon">
+                    <input type="password" v-model="password" placeholder="enter_passw********" required />
+                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/>
+                    </svg>
+                </div>
+
+                <div class="input-box has-icon">
+                    <input type="password" v-model="confirmPassword" placeholder="confirm_passw********" required />
+                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/>
+                    </svg>
+                </div>
+
+                <button type="submit" class="submit-action">Sign up</button>
+            </form>
+
+            <div class="social-divider">
+                <span>or continue with...</span>
+            </div>
+
+            <div class="social-circles">
+                <div class="s-circle"></div>
+                <div class="s-circle"></div>
+                <div class="s-circle"></div>
+                <div class="s-circle"></div>
+            </div>
+
+            <div class="auth-footer">
+                Already have an account? <RouterLink to="/signin">Sign in</RouterLink>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-.auth-container {
+* {
+    box-sizing: border-box;
+}
+
+/* Центрируем всё по экрану */
+.auth-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    max-width: 400px;
-    padding: 40px 30px;
-    border-radius: 12px;
-    background: #1e1e1e;
-    border: 1px solid #2c2c2c;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    color: white;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* --- ШАПКА --- */
+.brand-header {
     text-align: center;
+    margin-bottom: 24px;
 }
 
-.auth-container h2 {
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.logo-dot {
+    width: 32px;
+    height: 32px;
+    background-color: #888;
+    border-radius: 50%;
+}
+
+.logo-wrapper h1 {
+    font-size: 26px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.brand-subtitle {
+    font-size: 13px;
+    color: #aaa;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* --- КАРТОЧКА --- */
+.auth-card {
+    background-color: #1a1a1a;
+    border-radius: 20px;
+    padding: 35px 30px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-headings {
+    text-align: center;
     margin-bottom: 25px;
-    color: #42b883;
 }
 
-.input-group {
-    margin-bottom: 20px;
-    text-align: left;
+.card-headings h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #fff;
 }
 
-.input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: #a0a0a0;
+.card-headings p {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+    margin: 0;
 }
 
-input {
+/* --- ФОРМА И ИНПУТЫ --- */
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.input-box {
+    position: relative;
     width: 100%;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #333;
-    background-color: #2a2a2a;
-    color: white;
-    font-size: 1rem;
+}
+
+.input-box input {
+    width: 100%;
+    background-color: #2a2a2a; 
+    border: 1px solid transparent;
+    border-radius: 30px; /* Форма "пилюли" */
+    padding: 14px 20px;
+    color: #fff;
+    font-size: 13px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
 }
 
-input:focus {
-    border-color: #42b883;
+.input-box input::placeholder {
+    color: #666;
 }
 
-button {
+.input-box input:focus {
+    background-color: #222;
+    border-color: #88ffb4;
+}
+
+.input-box.has-icon input {
+    padding-right: 45px;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.eye-icon:hover {
+    color: #aaa;
+}
+
+/* --- КНОПКА --- */
+.submit-action {
     width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    background-color: #42b883;
-    color: white;
+    background-color: #88ffb4; /* Неоново-зеленый цвет */
+    color: #000000; /* Черный текст для контраста */
     border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: bold;
+    border-radius: 30px;
+    padding: 15px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(136, 255, 180, 0.3); /* Мягкое неоновое свечение */
+}
+
+.submit-action:hover {
+    background-color: #6ce09b; /* Цвет при наведении */
+    box-shadow: 0 0 25px rgba(136, 255, 180, 0.6); /* Усиливаем свечение */
+    transform: translateY(-1px);
+}
+/* --- СОЦСЕТИ --- */
+.social-divider {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.social-divider span {
+    font-size: 11px;
+    color: #666;
+}
+
+.social-circles {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.s-circle {
+    width: 32px;
+    height: 32px;
+    background-color: #2a2a2a;
+    border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-button:hover:not(:disabled) {
-    background-color: #33a06f;
+.s-circle:hover {
+    background-color: #444;
 }
 
-button:disabled {
-    background-color: #555;
-    cursor: not-allowed;
+/* --- ФУТЕР ССЫЛКА --- */
+.auth-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    border-top: 1px solid #333;
+    padding-top: 20px;
 }
 
-.status-message {
-    margin-top: 20px;
-    color: #42b883;
-    font-weight: 500;
+.auth-footer a {
+    color: #aaa;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.auth-footer a:hover {
+    color: #fff;
+    text-decoration: underline;
 }
 </style>
