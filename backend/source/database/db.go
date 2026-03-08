@@ -12,7 +12,7 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite3", "./leaves.db")
+	DB, err = sql.Open("sqlite3", "./db/leaves.db")
 	if err != nil {
 		log.Fatalf("DB open error: %v", err)
 	}
@@ -34,5 +34,5 @@ func InitDB() {
 	
 	DB.Exec(usersTable)
 	DB.Exec(messagesTable)
-	fmt.Println("SQLite db/leaves.db ready...")
+	fmt.Println("SQLite ./db/leaves.db ready...")
 }
