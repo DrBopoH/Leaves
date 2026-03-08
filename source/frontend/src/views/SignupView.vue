@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { signupUser } from '../api/auth';
 
-// Функционал: реактивные переменные для сбора данных
 const username = ref('');
 const email = ref('');
 const password = ref('');
+const confirmPassword = ref('');
 const message = ref('');
 const isLoading = ref(false);
 
@@ -15,11 +16,16 @@ const handleSubmit = async () => {
         return;
     }
 
+    if (password.value !== confirmPassword.value) {
+        message.value = 'Пароли не совпадают!';
+        return;
+    }
+
     isLoading.value = true;
     message.value = '';
 
     try {
-        const result = await registerUser({
+        const result = await signupUser({
             email: email.value,
             password: password.value,
         });
@@ -75,7 +81,11 @@ const handleSubmit = async () => {
                     </svg>
                 </div>
 
-                <button type="submit" class="submit-action">Sign up</button>
+                <p v-if="message" style="color: #ff6b6b; font-size: 13px; text-align: center; margin-bottom: 5px;">{{ message }}</p>
+
+                <button type="submit" class="submit-action" :disabled="isLoading">
+                    {{ isLoading ? 'Loading...' : 'Sign up' }}
+                </button>
             </form>
 
             <div class="social-divider">
@@ -83,10 +93,7 @@ const handleSubmit = async () => {
             </div>
 
             <div class="social-circles">
-                <div class="s-circle"></div>
-                <div class="s-circle"></div>
-                <div class="s-circle"></div>
-                <div class="s-circle"></div>
+                <div class="s-circle"></div><div class="s-circle"></div><div class="s-circle"></div><div class="s-circle"></div>
             </div>
 
             <div class="auth-footer">
@@ -101,7 +108,6 @@ const handleSubmit = async () => {
     box-sizing: border-box;
 }
 
-/* Центрируем всё по экрану */
 .auth-layout {
     display: flex;
     flex-direction: column;
@@ -113,7 +119,6 @@ const handleSubmit = async () => {
     padding: 20px;
 }
 
-/* --- ШАПКА --- */
 .brand-header {
     text-align: center;
     margin-bottom: 24px;
@@ -148,7 +153,6 @@ const handleSubmit = async () => {
     line-height: 1.5;
 }
 
-/* --- КАРТОЧКА --- */
 .auth-card {
     background-color: #1a1a1a;
     border-radius: 20px;
@@ -176,7 +180,6 @@ const handleSubmit = async () => {
     margin: 0;
 }
 
-/* --- ФОРМА И ИНПУТЫ --- */
 .form-content {
     display: flex;
     flex-direction: column;
@@ -193,7 +196,7 @@ const handleSubmit = async () => {
     width: 100%;
     background-color: #2a2a2a; 
     border: 1px solid transparent;
-    border-radius: 30px; /* Форма "пилюли" */
+    border-radius: 30px;
     padding: 14px 20px;
     color: #fff;
     font-size: 13px;
@@ -230,11 +233,10 @@ const handleSubmit = async () => {
     color: #aaa;
 }
 
-/* --- КНОПКА --- */
 .submit-action {
     width: 100%;
-    background-color: #88ffb4; /* Неоново-зеленый цвет */
-    color: #000000; /* Черный текст для контраста */
+    background-color: #88ffb4;
+    color: #000000;
     border: none;
     border-radius: 30px;
     padding: 15px;
@@ -243,15 +245,15 @@ const handleSubmit = async () => {
     cursor: pointer;
     margin-top: 10px;
     transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(136, 255, 180, 0.3); /* Мягкое неоновое свечение */
+    box-shadow: 0 0 15px rgba(136, 255, 180, 0.3);
 }
 
 .submit-action:hover {
-    background-color: #6ce09b; /* Цвет при наведении */
-    box-shadow: 0 0 25px rgba(136, 255, 180, 0.6); /* Усиливаем свечение */
+    background-color: #6ce09b;
+    box-shadow: 0 0 25px rgba(136, 255, 180, 0.6);
     transform: translateY(-1px);
 }
-/* --- СОЦСЕТИ --- */
+
 .social-divider {
     text-align: center;
     margin-bottom: 12px;
@@ -282,7 +284,6 @@ const handleSubmit = async () => {
     background-color: #444;
 }
 
-/* --- ФУТЕР ССЫЛКА --- */
 .auth-footer {
     text-align: center;
     font-size: 12px;

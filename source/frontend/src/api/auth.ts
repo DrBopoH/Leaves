@@ -7,7 +7,7 @@ export interface AuthPayload {
     password: string;
 }
 
-export const registerUser = async (data: AuthPayload) => {
+export const signupUser = async (data: AuthPayload) => {
     const response = await fetch(`${BASE_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +22,7 @@ export const registerUser = async (data: AuthPayload) => {
     return response.json();
 };
 
-export const loginUser = async (data: AuthPayload) => {
+export const signinUser = async (data: AuthPayload) => {
     const response = await fetch(`${BASE_URL}/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

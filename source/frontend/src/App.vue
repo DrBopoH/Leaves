@@ -5,24 +5,13 @@ const route = useRoute();
 </script>
 
 <template>
-    <header class="navbar">
+    <header class="navbar" v-if="!['/signin', '/signup'].includes(route.path)">
         <div class="logo">
             <RouterLink to="/">Leaves 🍃</RouterLink>
         </div>
         <nav class="nav-links">
-            <RouterLink 
-                v-if="route.path !== '/signin'" 
-                to="/signin" 
-                class="nav-btn nav-btn-outline">
-                Sign in
-            </RouterLink>
-            
-            <RouterLink 
-                v-if="route.path !== '/signup'" 
-                to="/signup" 
-                class="nav-btn">
-                Sign up
-            </RouterLink>
+            <RouterLink to="/signin" class="nav-btn nav-btn-outline">Sign in</RouterLink>
+            <RouterLink to="/signup" class="nav-btn">Sign up</RouterLink>
         </nav>
     </header>
 

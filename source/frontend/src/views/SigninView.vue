@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { loginUser } from '../api/auth'; 
+import { RouterLink } from 'vue-router';
+import { signinUser } from '../api/auth'; 
 
-// Реактивные переменные для сбора данных
 const email = ref('');
 const password = ref('');
+const rememberMe = ref(false);
 const message = ref('');
 const isLoading = ref(false);
 
-const handleLogin = async () => {
+const handleSubmit = async () => {
     if (!email.value || !password.value) {
         message.value = 'Заполните все поля!';
         return;
@@ -18,14 +19,12 @@ const handleLogin = async () => {
     message.value = '';
 
     try {
-        const result = await loginUser({
+        const result = await signinUser({
             email: email.value,
             password: password.value,
         });
         
         message.value = result.message; 
-        
-        // Спойлер: тут позже будет код для перенаправления пользователя в чаты!
         
     } catch (error: any) {
         message.value = error.message || 'Ошибка сервера 😢';
@@ -75,7 +74,11 @@ const handleLogin = async () => {
                     <a href="#" class="forgot-password">forgot password?</a>
                 </div>
 
-                <button type="submit" class="submit-action">Sign in</button>
+                <p v-if="message" style="color: #ff6b6b; font-size: 13px; text-align: center; margin-bottom: 5px;">{{ message }}</p>
+
+                <button type="submit" class="submit-action" :disabled="isLoading">
+                    {{ isLoading ? 'Loading...' : 'Sign in' }}
+                </button>
             </form>
 
             <div class="social-divider">
@@ -83,10 +86,7 @@ const handleLogin = async () => {
             </div>
 
             <div class="social-circles">
-                <div class="s-circle"></div>
-                <div class="s-circle"></div>
-                <div class="s-circle"></div>
-                <div class="s-circle"></div>
+                <div class="s-circle"></div><div class="s-circle"></div><div class="s-circle"></div><div class="s-circle"></div>
             </div>
 
             <div class="auth-footer">
@@ -112,7 +112,6 @@ const handleLogin = async () => {
     padding: 20px;
 }
 
-/* --- ШАПКА --- */
 .brand-header {
     text-align: center;
     margin-bottom: 24px;
@@ -147,7 +146,6 @@ const handleLogin = async () => {
     line-height: 1.5;
 }
 
-/* --- КАРТОЧКА --- */
 .auth-card {
     background-color: #1a1a1a;
     border-radius: 20px;
@@ -175,7 +173,6 @@ const handleLogin = async () => {
     margin: 0;
 }
 
-/* --- ФОРМА И ИНПУТЫ --- */
 .form-content {
     display: flex;
     flex-direction: column;
@@ -229,7 +226,6 @@ const handleLogin = async () => {
     color: #aaa;
 }
 
-/* --- ЧЕКБОКС И ЗАБЫЛИ ПАРОЛЬ --- */
 .options-row {
     display: flex;
     justify-content: space-between;
@@ -247,9 +243,8 @@ const handleLogin = async () => {
     cursor: pointer;
 }
 
-/* Кастомный чекбокс */
 .remember-me input[type="checkbox"] {
-    display: none; /* Прячем стандартный */
+    display: none;
 }
 
 .checkmark {
@@ -294,11 +289,10 @@ const handleLogin = async () => {
     color: #fff;
 }
 
-/* --- КНОПКА --- */
 .submit-action {
     width: 100%;
-    background-color: #88ffb4; /* Неоново-зеленый цвет */
-    color: #000000; /* Черный текст для контраста */
+    background-color: #88ffb4;
+    color: #000000;
     border: none;
     border-radius: 30px;
     padding: 15px;
@@ -307,15 +301,15 @@ const handleLogin = async () => {
     cursor: pointer;
     margin-top: 10px;
     transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(136, 255, 180, 0.3); /* Мягкое неоновое свечение */
+    box-shadow: 0 0 15px rgba(136, 255, 180, 0.3);
 }
 
 .submit-action:hover {
-    background-color: #6ce09b; /* Цвет при наведении */
-    box-shadow: 0 0 25px rgba(136, 255, 180, 0.6); /* Усиливаем свечение */
+    background-color: #6ce09b;
+    box-shadow: 0 0 25px rgba(136, 255, 180, 0.6);
     transform: translateY(-1px);
 }
-/* --- СОЦСЕТИ --- */
+
 .social-divider {
     text-align: center;
     margin-bottom: 12px;
@@ -346,7 +340,6 @@ const handleLogin = async () => {
     background-color: #444;
 }
 
-/* --- ФУТЕР ССЫЛКА --- */
 .auth-footer {
     text-align: center;
     font-size: 12px;
