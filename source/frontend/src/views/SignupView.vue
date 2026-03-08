@@ -6,17 +6,31 @@ import { RouterLink } from 'vue-router';
 const username = ref('');
 const email = ref('');
 const password = ref('');
-const confirmPassword = ref('');
+const message = ref('');
+const isLoading = ref(false);
 
-// Функционал: обработка отправки формы
-const handleSubmit = () => {
-    // Здесь позже добавишь свой API запрос
-    console.log('Данные формы:', {
-        username: username.value,
-        email: email.value,
-        password: password.value,
-        confirmPassword: confirmPassword.value
-    });
+const handleSubmit = async () => {
+    if (!email.value || !password.value) {
+        message.value = 'Заполните все поля!';
+        return;
+    }
+
+    isLoading.value = true;
+    message.value = '';
+
+    try {
+        const result = await registerUser({
+            email: email.value,
+            password: password.value,
+        });
+        
+        message.value = result.message; 
+    } catch (error: any) {
+        message.value = error.message || 'Сервер недоступен или выдал ошибку 😢';
+        console.error(error);
+    } finally {
+        isLoading.value = false;
+    }
 };
 </script>
 

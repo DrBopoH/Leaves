@@ -15,8 +15,23 @@ export const registerUser = async (data: AuthPayload) => {
     });
 
     if (!response.ok) {
-        throw new Error('Ошибка при регистрации');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Ошибка при регистрации');
     }
     
-    return response.text();
+    return response.json();
+};
+
+export const loginUser = async (data: AuthPayload) => {
+    const response = await fetch(`${BASE_URL}/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        throw new Error('Неверный email или пароль'); 
+    }
+    
+    return response.json(); 
 };

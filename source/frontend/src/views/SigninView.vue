@@ -1,19 +1,38 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { loginUser } from '../api/auth'; 
 
 // Реактивные переменные для сбора данных
 const email = ref('');
 const password = ref('');
-const rememberMe = ref(false); // Чекбокс
+const message = ref('');
+const isLoading = ref(false);
 
-// Обработка отправки формы
-const handleSubmit = () => {
-    console.log('Данные входа:', {
-        email: email.value,
-        password: password.value,
-        rememberMe: rememberMe.value
-    });
+const handleLogin = async () => {
+    if (!email.value || !password.value) {
+        message.value = 'Заполните все поля!';
+        return;
+    }
+
+    isLoading.value = true;
+    message.value = '';
+
+    try {
+        const result = await loginUser({
+            email: email.value,
+            password: password.value,
+        });
+        
+        message.value = result.message; 
+        
+        // Спойлер: тут позже будет код для перенаправления пользователя в чаты!
+        
+    } catch (error: any) {
+        message.value = error.message || 'Ошибка сервера 😢';
+        console.error(error);
+    } finally {
+        isLoading.value = false;
+    }
 };
 </script>
 
