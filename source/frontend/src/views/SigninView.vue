@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { loginUser } from '../api/auth'; 
 
 const email = ref('');
 const password = ref('');
@@ -16,12 +17,17 @@ const handleLogin = async () => {
     message.value = '';
 
     try {
-        // ВРЕМЕННАЯ ЗАГЛУШКА: Имитируем запрос на сервер (1 секунда)
-        // Позже мы заменим это на реальный вызов API, как в регистрации
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        message.value = 'Успешный вход (скоро тут будет реальная связь с Go)!';
-    } catch (error) {
-        message.value = 'Ошибка входа 😢';
+        const result = await loginUser({
+            email: email.value,
+            password: password.value,
+        });
+        
+        message.value = result.message; 
+        
+        // Спойлер: тут позже будет код для перенаправления пользователя в чаты!
+        
+    } catch (error: any) {
+        message.value = error.message || 'Ошибка сервера 😢';
         console.error(error);
     } finally {
         isLoading.value = false;

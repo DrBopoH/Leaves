@@ -5,30 +5,30 @@ import { registerUser } from '../api/auth';
 const email = ref('');
 const password = ref('');
 const message = ref('');
-const isLoading = ref(false)
+const isLoading = ref(false);
 
 const handleSubmit = async () => {
-	if (!email.value || !password.value) {
-		message.value = 'Заполните все поля!';
-		return;
-	}
+    if (!email.value || !password.value) {
+        message.value = 'Заполните все поля!';
+        return;
+    }
 
-	isLoading.value = true;
-	message.value = '';
+    isLoading.value = true;
+    message.value = '';
 
-	try {
-		const result = await registerUser({
-			email: email.value,
-			password: password.value,
-		});
-		
-		message.value = `Успех: ${result}`;
-	} catch (error) {
-		message.value = 'Сервер недоступен или выдал ошибку 😢';
-		console.error(error);
-	} finally {
-		isLoading.value = false;
-	}
+    try {
+        const result = await registerUser({
+            email: email.value,
+            password: password.value,
+        });
+        
+        message.value = result.message; 
+    } catch (error: any) {
+        message.value = error.message || 'Сервер недоступен или выдал ошибку 😢';
+        console.error(error);
+    } finally {
+        isLoading.value = false;
+    }
 };
 </script>
 
