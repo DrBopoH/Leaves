@@ -97,7 +97,7 @@ func Signin(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
+		cookie := &http.Cookie{
 			Name:     "auth_token",
 			Value:    tokenString,
 			Expires:  expirationTime,
@@ -105,7 +105,10 @@ func Signin(db *sql.DB) http.HandlerFunc {
 			Secure:   true,
 			SameSite: http.SameSiteNoneMode,
 			Path:     "/",
-		})
+		}
+
+		cookieString := cookie.String() + "; Partitioned"
+		w.Header().Add("Set-Cookie", cookieString)
 
 		fmt.Printf("\n[II] Sign in request successfully by \"%s\" user.\n", user.Username)		// DEBUG PRINT
 		w.WriteHeader(http.StatusOK)

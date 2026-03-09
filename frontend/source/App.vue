@@ -7,6 +7,16 @@ import { useUserStore } from './stores/user';
 const route = useRoute();
 const userStore = useUserStore();
 
+const getUserColor = (username: string) => {
+    if (!username) return '#5fca08';
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 80%, 65%)`;
+};
+
 onMounted(async () => {
     try {
         const user = await fetchMe();
@@ -31,8 +41,14 @@ onMounted(async () => {
                 <RouterLink to="/auth" class="nav-btn nav-btn-outline">Sign in</RouterLink>
             </template>
             <RouterLink to="/app" v-else class="user-profile" style="text-decoration: none;">
-                <span class="username">{{ userStore.currentUser.username }}</span>
-                <div class="avatar">
+                <span class="username" :style="{ color: getUserColor(userStore.currentUser.username) }">
+                    {{ userStore.currentUser.username }}
+                </span>
+                
+                <div class="avatar" :style="{ 
+                    borderColor: getUserColor(userStore.currentUser.username), 
+                    color: getUserColor(userStore.currentUser.username) 
+                }">
                     {{ userStore.currentUser.username.charAt(0).toUpperCase() }}
                 </div>
             </RouterLink>
