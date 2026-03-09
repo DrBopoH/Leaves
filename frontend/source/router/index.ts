@@ -1,5 +1,5 @@
 // source/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import LandingPage from '../pages/LandingPage.vue'
 import AuthPage from '../pages/AuthPage.vue'
