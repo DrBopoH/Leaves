@@ -8,10 +8,15 @@ export interface AuthPayload {
     rememberMe?: boolean;
 }
 
+const defaultHeaders = {
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'
+};
+
 export const signupUser = async (data: AuthPayload) => {
     const response = await fetch(`${BASE_URL}/signup`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         body: JSON.stringify(data),
         credentials: 'include',
     });
@@ -26,7 +31,7 @@ export const signupUser = async (data: AuthPayload) => {
 export const signinUser = async (data: AuthPayload) => {
     const response = await fetch(`${BASE_URL}/signin`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         body: JSON.stringify(data),
         credentials: 'include',
     });
@@ -40,7 +45,7 @@ export const signinUser = async (data: AuthPayload) => {
 export const fetchMe = async () => {
     const response = await fetch(`${BASE_URL}/me`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         credentials: 'include',
     });
 
@@ -53,7 +58,7 @@ export const fetchMe = async () => {
 export const fetchChatHistory = async () => {
     const response = await fetch(`${BASE_URL}/messages`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         credentials: 'include',
     });
 

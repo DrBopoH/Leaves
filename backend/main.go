@@ -27,14 +27,16 @@ var externalApiUrl string
 
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		externalApiUrl = os.Getenv("EXTERNAL_API_URL")
-		if externalApiUrl == "" {
-			externalApiUrl = default_externalApiUrl
+		origin := r.Header.Get("Origin")
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			w.Header().Set("Access-Control-Allow-Origin", externalApiUrl) 
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", externalApiUrl) 
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, ngrok-skip-browser-warning")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		if r.Method == "OPTIONS" {
@@ -56,7 +58,16 @@ func main() {
 		fmt.Println(warn_envNotFound)		// DEBUG PRINT
 		log.Println(warn_envNotFound)		// DEBUG LOG
 	}
+	
+	externalApiUrl = os.Getenv("EXTERNAL_API_URL")
+	if externalApiUrl == "" {
+		externalApiUrl = default_externalApiUrl
+	}
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = default_internalPort
+	}
 
 	err = database.InitDB()
 	if err != nil { 
@@ -78,11 +89,6 @@ func main() {
 
 	go handlers.BroadcastMessages()
 
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = default_internalPort
-	}
 
 	handler := enableCORS(mux)
 	fmt.Printf("[II] Server ready, and lisens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, externalApiUrl)		// DEBUG PRINT

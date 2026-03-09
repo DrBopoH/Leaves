@@ -98,13 +98,13 @@ func Signin(db *sql.DB) http.HandlerFunc {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-		    Name:     "auth_token",
-		    Value:    tokenString,
-		    Expires:  expirationTime,
-		    HttpOnly: true,
-		    Secure:   true,
-		    SameSite: http.SameSiteNoneMode,
-		    Path:     "/",
+			Name:     "auth_token",
+			Value:    tokenString,
+			Expires:  expirationTime,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
+			Path:     "/",
 		})
 
 		fmt.Printf("\n[II] Sign in request successfully by \"%s\" user.\n", user.Username)		// DEBUG PRINT
