@@ -5,7 +5,7 @@ const route = useRoute();
 </script>
 
 <template>
-	<header class="navbar" v-if="!['/signin', '/signup'].includes(route.path)">
+	<header class="navbar" v-if="!['/signin', '/signup', '/chats'].includes(route.path)">
 		<div class="logo">
 			<RouterLink to="/">
 				<img src="/Logo.svg" alt="Leaves Logo" class="logo-icon" />
@@ -18,7 +18,11 @@ const route = useRoute();
 	</header>
 
 	<main class="content-wrapper">
-		<RouterView />
+		<RouterView v-slot="{ Component }">
+			<transition name="discord-fade" mode="out-in">
+      <component :is="Component" />
+    </transition>
+</RouterView>
 	</main>
 </template>
 
@@ -222,30 +226,45 @@ body {
 .social-divider::after { right: 0; }
 .social-divider span { font-size: 12px; color: #666; padding: 0 10px; }
 
+/* Выравниваем всю группу */
 .social-circles {
-	display: flex;
-	justify-content: center;
-	gap: 16px;
-	margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 24px; /* Расстояние между иконками */
+    margin-top: 16px;
+    margin-bottom: 24px;
 }
-.s-circle {
-	width: 44px;
-	height: 44px;
-	background-color: #1a1a1a;
-	border: 1px solid #333;
-	border-radius: 32px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: all 0.2s;
-}
-.s-circle:hover {
-	background-color: #2a2a2a;
-	border-color: #555;
-}
-.s-circle svg { width: 24px; height: 24px; }
 
+/* Убрали border и background, оставили только кликабельную зону */
+.s-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    text-decoration: none;
+}
+
+/* При наведении иконка будет чуть-чуть подпрыгивать */
+.s-circle:hover {
+    transform: translateY(-2px);
+}
+
+/* Настраиваем размер самих иконок, как на твоем оригинале */
+.social-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+.google{background:white;border:1px solid #ddd;}
+.github{background:#171515;}
+.discord{background:#5865F2;}
+
+.s-circle:hover{
+transform:scale(1.1);
+box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}1
 .auth-footer {
 	text-align: center;
 	font-size: 13px;
@@ -296,4 +315,22 @@ body {
 .nav-btn-outline { background-color: transparent; border: 1px solid #333; color: #fff; }
 .nav-btn-outline:hover { background-color: #1a1a1a; border-color: #555; }
 .content-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px; }
+.discord-fade-enter-active,
+.discord-fade-leave-active {
+  transition: all 0.2s ease-out; /* Быстро, как в дискорде */
+}
+
+.discord-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.discord-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.checkbox{
+	color: #3f3f46;
+	background-color: #3f3f46;
+}
 </style>
