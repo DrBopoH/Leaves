@@ -2,9 +2,10 @@
 package main
 
 import (
+	"net/http"
+	
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -13,11 +14,18 @@ import (
 	"leaves/source/handlers"
 )
 
+const default_externalApiUrl string = "http://localhost:5173"
+const default_internalPort string = "8080"
+
+const warn_envNotFound string = "[WW] File .env not found at ./, using default"
+
+
+
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		externalApiUrl := os.Getenv("EXTERNAL_API_URL")
 		if externalApiUrl == "" {
-			externalApiUrl = "http://localhost:5173"
+			externalApiUrl = default_externalApiUrl
 		}
 
 		w.Header().Set("Access-Control-Allow-Origin", externalApiUrl) 
@@ -34,13 +42,25 @@ func enableCORS(next http.Handler) http.Handler {
 	})
 }
 
+
+
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("[WW] File .env not found at /, use system properties")
+	var err error
+
+	err = godotenv.Load();
+	if err != nil {
+		fmt.Println(warn_envNotFound)		// DEBUG PRINT
+		log.Println(warn_envNotFound)		// DEBUG LOG
 	}
 
-	database.InitDB()
+
+	err = database.InitDB()
+	if err != nil { 
+		return 
+	}
+
 	defer database.DB.Close()
+
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signup", handlers.Signup(database.DB))
@@ -48,12 +68,13 @@ func main() {
 
 	mux.HandleFunc("GET /me", handlers.Me())
 
+
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = default_internalPort
 	}
 
 	handler := enableCORS(mux)
-	fmt.Printf("🚀 Сервер запущен на http://localhost:%s\n", port)
+	fmt.Printf("[II] Server ready, and lisens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, default_externalApiUrl)		// DEBUG PRINT
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }

@@ -8,14 +8,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+
+
 type Claims struct {
 	UserID   int    `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
+
+
 func GenerateToken(userID int, username string, rememberMe bool) (string, time.Time, error) {
-	jwtKey := []byte(os.Getenv("JWT_SECRET"))
+	jwtKey := []byte(os.Getenv("JWT_SECRET_KEY"))
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 	if rememberMe {
@@ -38,8 +42,8 @@ func GenerateToken(userID int, username string, rememberMe bool) (string, time.T
 
 func ParseToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
+		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 	})
 
 	if err != nil || !token.Valid {
