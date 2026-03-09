@@ -21,9 +21,13 @@ const warn_envNotFound string = "[WW] File .env not found at ./, using default"
 
 
 
+var externalApiUrl string
+
+
+
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		externalApiUrl := os.Getenv("EXTERNAL_API_URL")
+		externalApiUrl = os.Getenv("EXTERNAL_API_URL")
 		if externalApiUrl == "" {
 			externalApiUrl = default_externalApiUrl
 		}
@@ -81,6 +85,6 @@ func main() {
 	}
 
 	handler := enableCORS(mux)
-	fmt.Printf("[II] Server ready, and lisens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, default_externalApiUrl)		// DEBUG PRINT
+	fmt.Printf("[II] Server ready, and lisens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, externalApiUrl)		// DEBUG PRINT
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
