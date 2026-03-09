@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../stores/user';
+import { fetchChatHistory } from '../api/auth';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -13,7 +14,12 @@ const isConnected = ref(false);
 
 const messages = ref<any[]>([]);
 
-// Функция автоскролла вниз при новом сообщении
+const formatTime = (isoString: string) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+};
+
 const scrollToBottom = async () => {
     await nextTick();
     if (messagesContainer.value) {
@@ -21,10 +27,24 @@ const scrollToBottom = async () => {
     }
 };
 
+const loadHistory = async () => {
+    try {
+        const history = await fetchChatHistory();
+        messages.value = history.map((msg: any) => ({
+            id: msg.id,
+            user: msg.username,
+            text: msg.text,
+            time: formatTime(msg.timestamp)
+        }));
+        scrollToBottom();
+    } catch (error) {
+        console.error("Failed to load chat history:", error);
+    }
+};
+
 const connectWebSocket = () => {
-    // В будущем замени на свой реальный WS URL (вынесем в .env)
-    const wsUrl = 'ws://localhost:8080/ws'; 
-    ws.value = new WebSocket(wsUrl);
+    const wsBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8080').replace(/^http/, 'ws');
+    ws.value = new WebSocket(`${wsBaseUrl}/ws`);
 
     ws.value.onopen = () => {
         console.log('🔗 WebSocket подключен!');
@@ -34,7 +54,12 @@ const connectWebSocket = () => {
     ws.value.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
-            messages.value.push(data);
+            messages.value.push({
+                id: data.id,
+                user: data.username,
+                text: data.text,
+                time: formatTime(data.timestamp)
+            });
             scrollToBottom();
         } catch (e) {
             console.error('Ошибка парсинга сообщения:', e);
@@ -48,12 +73,13 @@ const connectWebSocket = () => {
     };
 };
 
-onMounted(() => {
+onMounted(async () => {
     if (!userStore.currentUser) {
         router.push('/auth');
         return;
     }
-    // Запускаем коннект с БД/Сокетом при входе
+    
+    await loadHistory();
     connectWebSocket();
 });
 
@@ -64,20 +90,13 @@ onUnmounted(() => {
 });
 
 const sendMessage = () => {
-    if (!newMessage.value.trim() || !userStore.currentUser || !isConnected.value) return;
+    if (!newMessage.value.trim() || !isConnected.value) return;
     
-    // Формируем пакет для отправки на бэк
     const payload = {
-        user: userStore.currentUser.username,
         text: newMessage.value,
-        // timestamp сгенерирует сервер, но для визуала можем пока слать локальный
     };
 
     ws.value?.send(JSON.stringify(payload));
-    
-    // Пока сервер не написан, локально добавляем сообщение (потом удалим этот кусок)
-    messages.value.push({ ...payload, id: Date.now(), time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) });
-    scrollToBottom();
     
     newMessage.value = '';
 };
