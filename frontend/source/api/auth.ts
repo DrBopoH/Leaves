@@ -49,3 +49,14 @@ export const fetchMe = async () => {
     const data = await response.json();
     return data.user;
 };
+
+export const fetchChatHistory = async () => {
+    const response = await fetch(`${BASE_URL}/messages`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch history');
+    return response.json();
+};

@@ -68,6 +68,12 @@ func main() {
 
 	mux.HandleFunc("GET /me", handlers.Me())
 
+	mux.HandleFunc("GET /messages", handlers.GetHistory(database.DB))
+	mux.HandleFunc("/ws", handlers.HandleWebSocket(database.DB))
+
+
+	go handlers.BroadcastMessages()
+
 
 	port := os.Getenv("PORT")
 	if port == "" {
