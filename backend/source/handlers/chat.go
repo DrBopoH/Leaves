@@ -106,10 +106,15 @@ func GetHistory(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		
 		rows, err := db.Query(`
-			SELECT m.id, m.user_id, u.username, m.content, m.created_at
-			FROM messages m
-			JOIN users u ON m.user_id = u.id
-			ORDER BY m.created_at ASC LIMIT 100
+			SELECT sub.id, sub.user_id, u.username, sub.content, sub.created_at
+			FROM (
+				SELECT id, user_id, content, created_at
+				FROM messages
+				ORDER BY id DESC
+				LIMIT 100
+			) sub
+			JOIN users u ON sub.user_id = u.id
+			ORDER BY sub.id ASC
 		`)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
