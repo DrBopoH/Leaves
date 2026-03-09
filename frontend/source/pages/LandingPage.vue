@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts"> // source/pages/LandingPage.vue
 import { RouterLink } from 'vue-router';
 </script>
 

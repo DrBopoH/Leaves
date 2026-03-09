@@ -1,18 +1,21 @@
+// source/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
 
-import IndexView from '../pages/LandingPage.vue'
-import SignupView from '../pages/SignupPage.vue'
-import SigninView from '../pages/SigninPage.vue'
-import ChatsView from '../pages/Chats.vue'
+import LandingPage from '../pages/LandingPage.vue'
+import SignupPage from '../pages/SignupPage.vue'
+import SigninPage from '../pages/SigninPage.vue'
+import AppPage from '../pages/AppPage.vue'
 
-const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: [
-        { path: '/', name: 'index', component: IndexView },
-        { path: '/signup', name: 'signup', component: SignupView },
-        { path: '/signin', name: 'signin', component: SigninView },
-        { path: '/chats', name: 'chats', component: ChatsView },
-    ],
-})
+const router = createRouter(
+    {
+        history: createWebHistory(import.meta.env.BASE_URL),
+        routes: [
+            { path: '/',       name: 'landing', component: LandingPage },
+            { path: '/signup', name: 'signup', component: SignupPage },
+            { path: '/signin', name: 'signin', component: SigninPage },
+            { path: '/app',    name: 'app', component: AppPage },
+        ],
+    }
+)
 
 export default router
