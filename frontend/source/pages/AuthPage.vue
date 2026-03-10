@@ -26,16 +26,16 @@ const clientError = computed(() => {
 });
 
 const isFormValid = computed(() => {
-	if (isLogin.value) {
-		return email.value && password.value && !clientError.value;
-	} else {
-		return username.value && email.value && password.value && !clientError.value;
-	}
+    if (isLogin.value) {
+        return email.value && password.value && !clientError.value;
+    } else {
+        return username.value && email.value && password.value && !clientError.value;
+    }
 });
 
 const toggleMode = () => {
-	isLogin.value = !isLogin.value;
-	serverMessage.value = '';
+    isLogin.value = !isLogin.value;
+    serverMessage.value = '';
 };
 
 const handleSubmit = async () => {
@@ -68,108 +68,123 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-	<div class="auth-layout">
-		<div class="glow-orb top-left"></div>
+    <div class="auth-layout">
+        <div class="glow-orb top-left"></div>
         <div class="glow-orb bottom-right"></div>
+        
+        <div class="brand-header">
+            <div class="logo-wrapper">
+                <img src="/Logo.svg" alt="Leaves" />
+                <h1>Leaves</h1>
+            </div>
+            <p class="brand-subtitle">Create your account and start building your conversations today.</p>
+        </div>
 
-		<div class="brand-header">
-			<div class="logo-wrapper">
-				<img src="/Logo.svg" alt="Leaves" />
-				<h1>Leaves</h1>
-			</div>
-			<p class="brand-subtitle">Create your account and start building your conversations today.</p>
-		</div>
+        <div class="auth-card">
+            <transition name="fade" mode="out-in">
+                <div class="card-headings" :key="isLogin ? 'login-head' : 'reg-head'">
+                    <h2>{{ isLogin ? 'Welcome back!' : 'Get started' }}</h2>
+                    <p>{{ isLogin ? 'Sign in to continue your conversations and stay connected.' : 'Sign up to connect with your communities and start messaging instantly.' }}</p>
+                </div>
+            </transition>
 
-		<div class="auth-card">
-			<transition name="fade" mode="out-in">
-				<div class="card-headings" :key="isLogin ? 'login-head' : 'reg-head'">
-					<h2>{{ isLogin ? 'Welcome back!' : 'Get started' }}</h2>
-					<p>{{ isLogin ? 'Sign in to continue your conversations and stay connected.' : 'Sign up to connect with your communities and start messaging instantly.' }}</p>
-				</div>
-			</transition>
+            <form @submit.prevent="handleSubmit" class="form-content">
+                <div style="position: relative;">
+                    <transition name="fade" mode="out-in">
+                        <div :key="isLogin ? 'login-inputs' : 'reg-inputs'" class="inputs-container">
+                            
+                            <div v-if="!isLogin" class="input-box" style="margin-bottom: 28px;">
+                                <input type="text" v-model="username" placeholder="username" required />
+                            </div>
 
-			<form @submit.prevent="handleSubmit" class="form-content">
-				<div style="position: relative;">
-					<transition name="fade" mode="out-in">
-						<div :key="isLogin ? 'login-inputs' : 'reg-inputs'" class="inputs-container">
+                            <div class="input-box" style="margin-bottom: 16px;">
+                                <input type="email" v-model="email" placeholder="your@email.com" required />
+                            </div>
 
-							<div v-if="!isLogin" class="input-box" style="margin-bottom: 28px;">
-								<input type="text" v-model="username" placeholder="username" required />
-							</div>
+                            <div class="input-box has-icon">
+                                <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="password" required />
+                                <svg 
+                                    @mousedown="showPassword = true" 
+                                    @mouseup="showPassword = false" 
+                                    @mouseleave="showPassword = false"
+                                    @touchstart.prevent="showPassword = true"
+                                    @touchend.prevent="showPassword = false"
+                                    @touchcancel.prevent="showPassword = false"
+                                    @contextmenu.prevent
+                                    class="eye-icon" 
+                                    viewBox="0 0 24 24" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    stroke-width="2" 
+                                    stroke-linecap="round" 
+                                    stroke-linejoin="round"
+                                >
+                                    <path v-if="!showPassword" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/>
+                                    <path v-else d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle v-if="showPassword" cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </div>
+                            
+                            <div v-if="isLogin" class="options-row">
+                                <label class="remember-me">
+                                    <input type="checkbox" v-model="rememberMe" />
+                                    <span class="checkmark"></span>
+                                    <span>remember me</span>
+                                </label>
+                                <a href="#" class="forgot-password">forgot password?</a>
+                            </div>
+                        </div>
+                    </transition>
+                </div>  
 
-							<div class="input-box" style="margin-bottom: 16px;">
-								<input type="email" v-model="email" placeholder="your@email.com" required />
-							</div>
+                <div class="error-reservoir" :class="{ 'has-error': clientError || serverMessage }">
+                    <div class="error-content">
+                        <span v-if="clientError" class="error-text error-client">{{ clientError }}</span>
+                        <span v-else-if="serverMessage" class="error-text error-server">{{ serverMessage }}</span>
+                    </div>
+                </div>
 
-							<div class="input-box has-icon">
-								<input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="password" required />
-								<svg @mousedown="showPassword = true" @mouseup="showPassword = false" @mouseleave="showPassword = false" class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<path v-if="!showPassword" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/>
-									<path v-else d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-									<circle v-if="showPassword" cx="12" cy="12" r="3"></circle>
-								</svg>
-							</div>
+                <button type="submit" class="submit-action" :class="{ 'is-loading': isLoading }" :disabled="!isFormValid || isLoading">
+                    <span v-if="!isLoading">{{ isLogin ? 'Sign in' : 'Sign up' }}</span>
+                    <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="4" cy="12" r="3"><animate id="a1" begin="0;a3.end-0.25s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
+                        <circle cx="12" cy="12" r="3"><animate begin="a1.begin+0.15s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
+                        <circle cx="20" cy="12" r="3"><animate id="a3" begin="a1.begin+0.3s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
+                    </svg>
+                </button>
+            </form>
 
-							<div v-if="isLogin" class="options-row">
-								<label class="remember-me">
-									<input type="checkbox" v-model="rememberMe" />
-									<span class="checkmark"></span>
-									<span>remember me</span>
-								</label>
-								<a href="#" class="forgot-password">forgot password?</a>
-							</div>
-						</div>
-					</transition>
-				</div>
+            <div class="social-divider">
+                <span>or continue with</span>
+            </div>
 
-				<div class="error-reservoir" :class="{ 'has-error': clientError || serverMessage }">
-					<div class="error-content">
-						<span v-if="clientError" class="error-text error-client">{{ clientError }}</span>
-						<span v-else-if="serverMessage" class="error-text error-server">{{ serverMessage }}</span>
-					</div>
-				</div>
+            <div class="social-circles">
+                <a href="#" class="s-circle">
+                    <img src="https://api.iconify.design/logos:google-icon.svg" class="social-icon" alt="Google" />
+                </a>
+                <a href="#" class="s-circle">
+                    <img src="https://api.iconify.design/skill-icons:github-dark.svg" class="social-icon" alt="GitHub" />
+                </a>
+                <a href="#" class="s-circle">
+                    <img src="https://api.iconify.design/mdi:steam.svg?color=%2300adee" class="social-icon" alt="Steam" />
+                </a>
+                <a href="#" class="s-circle">
+                    <img src="https://api.iconify.design/logos:discord-icon.svg" class="social-icon" alt="Discord" />
+                </a>
+            </div>
 
-				<button type="submit" class="submit-action" :disabled="!isFormValid || isLoading">
-					<span v-if="!isLoading">{{ isLogin ? 'Sign in' : 'Sign up' }}</span>
-					<svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-						<circle cx="4" cy="12" r="3"><animate id="a1" begin="0;a3.end-0.25s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
-						<circle cx="12" cy="12" r="3"><animate begin="a1.begin+0.15s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
-						<circle cx="20" cy="12" r="3"><animate id="a3" begin="a1.begin+0.3s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
-					</svg>
-				</button>
-			</form>
-
-			<div class="social-divider">
-				<span>or continue with</span>
-			</div>
-
-			<div class="social-circles">
-				<a href="#" class="s-circle">
-					<img src="https://api.iconify.design/logos:google-icon.svg" class="social-icon" alt="Google" />
-				</a>
-				<a href="#" class="s-circle">
-					<img src="https://api.iconify.design/skill-icons:github-dark.svg" class="social-icon" alt="GitHub" />
-				</a>
-				<a href="#" class="s-circle">
-					<img src="https://api.iconify.design/mdi:steam.svg?color=%2300adee" class="social-icon" alt="Steam" />
-				</a>
-				<a href="#" class="s-circle">
-					<img src="https://api.iconify.design/logos:discord-icon.svg" class="social-icon" alt="Discord" />
-				</a>
-			</div>
-
-			<transition name="fade" mode="out-in">
-				<div class="auth-footer" :key="isLogin ? 'login-foot' : 'reg-foot'">
-					<span v-if="isLogin">
-						Don't have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign up</a>
-					</span>
-					<span v-else>
-						Already have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign in</a>
-					</span>
-				</div>
-			</transition>
-		</div>
-	</div>
+            <transition name="fade" mode="out-in">
+                <div class="auth-footer" :key="isLogin ? 'login-foot' : 'reg-foot'">
+                    <span v-if="isLogin">
+                        Don't have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign up</a>
+                    </span>
+                    <span v-else>
+                        Already have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign in</a>
+                    </span>
+                </div>
+            </transition>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -314,6 +329,10 @@ const handleSubmit = async () => {
     cursor: pointer;
     transition: color 0.2s;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
 }
 
 .eye-icon:hover {
@@ -485,7 +504,7 @@ const handleSubmit = async () => {
     font-size: 12px;
     color: #64615c;
     padding: 0 10px;
-    background-color: #080b0a; /* Чтобы перекрыть полоску */
+    background-color: #080b0a;
 }
 
 .social-circles {
