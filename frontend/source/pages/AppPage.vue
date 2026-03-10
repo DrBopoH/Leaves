@@ -32,16 +32,6 @@ const scrollToBottom = async () => {
     }
 };
 
-const getUserColor = (username: string) => {
-    if (!username) return '#5fca08';
-    let hash = 0;
-    for (let i = 0; i < username.length; i++) {
-        hash = username.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const hue = Math.abs(hash % 360);
-    return `hsl(${hue}, 80%, 65%)`;
-};
-
 const formatMessage = (text: string) => {
     if (!text) return '';
     let safeText = text.replace(/[&<"'>]/g, (m) => {
@@ -133,7 +123,7 @@ onUnmounted(() => {
 
 <template>
     <div class="app-layout">
-        
+
         <div class="chat-header">
             <div class="header-left">
                 <button class="channel-toggle-btn" @click="toggleSidebar">
@@ -148,12 +138,12 @@ onUnmounted(() => {
                     <span class="channel-name">general</span>
                 </button>
             </div>
-            
+
             <div class="header-center brand">
                 <img src="/Logo.svg" alt="Leaves" class="brand-logo" />
                 <span class="brand-text">Leaves</span>
             </div>
-            
+
             <div class="header-right header-status">
                 <span class="status-dot" :class="{ online: isConnected }"></span>
                 <span class="status-text">{{ isConnected ? 'Connected' : 'Reconnecting...' }}</span>
@@ -162,7 +152,7 @@ onUnmounted(() => {
 
         <div class="main-content">
             <div class="sidebar-overlay" :class="{ 'is-open': isSidebarOpen }" @click="toggleSidebar"></div>
-            
+
             <div class="sidebar" :class="{ 'is-open': isSidebarOpen }">
                 <div class="channels">
                     <div class="channel active"># general</div>
@@ -172,26 +162,26 @@ onUnmounted(() => {
             <div class="chat-area">
                 <div class="messages-container" ref="messagesContainer">
                     <div v-if="messages.length === 0" class="empty-state">No messages yet. Say hi!</div>
-                    
-                    <div v-for="(msg, index) in messages" :key="msg.id" 
+
+                    <div v-for="(msg, index) in messages" :key="msg.id"
                          class="message"
                          :style="{ marginBottom: (index < messages.length - 1 && messages[index + 1].user === msg.user) ? '4px' : '24px' }">
-                        
-                        <div class="msg-avatar" 
-                             :style="{ 
-                                 borderColor: getUserColor(msg.user), 
-                                 color: getUserColor(msg.user),
-                                 visibility: (index > 0 && messages[index - 1].user === msg.user) ? 'hidden' : 'visible' 
+
+                        <div class="msg-avatar"
+                             :style="{
+                                 borderColor: userStore.getUserColor(msg.user),
+                                 color: userStore.getUserColor(msg.user),
+                                 visibility: (index > 0 && messages[index - 1].user === msg.user) ? 'hidden' : 'visible'
                              }">
                             {{ msg.user.charAt(0).toUpperCase() }}
                         </div>
 
                         <div class="msg-content">
                             <div class="msg-header" v-if="!(index > 0 && messages[index - 1].user === msg.user)">
-                                <span class="msg-username" :style="{ color: getUserColor(msg.user) }">{{ msg.user }}</span>
+                                <span class="msg-username" :style="{ color: userStore.getUserColor(msg.user) }">{{ msg.user }}</span>
                                 <span class="msg-time">{{ msg.time }}</span>
                             </div>
-                            
+
                             <div class="msg-bubble" :class="{ 'is-mine': msg.user === userStore.currentUser?.username }">
                                 <p class="msg-text" v-html="formatMessage(msg.text)"></p>
                             </div>
@@ -201,12 +191,13 @@ onUnmounted(() => {
 
                 <div class="chat-input-area">
                     <div class="input-wrapper">
-                        <textarea 
-                            v-model="newMessage" 
+                        <textarea
+                            v-model="newMessage"
                             @keydown="handleKeydown"
-                            placeholder="Message #general... (Shift+Enter for new line)" 
+                            placeholder="Message #general... (Shift+Enter for new line)"
                             class="chat-input"
                             rows="1"
+                            maxlength="2000"
                         ></textarea>
                         <button @click="sendMessage" class="send-btn" :disabled="!newMessage.trim() || !isConnected">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
@@ -219,24 +210,24 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.app-layout { 
-    display: flex; 
+.app-layout {
+    display: flex;
     flex-direction: column;
-    height: 100dvh; 
-    background-color: #050807; 
-    color: #c8c2b8; 
-    overflow: hidden; 
+    height: 100dvh;
+    background-color: #050807;
+    color: #c8c2b8;
+    overflow: hidden;
 }
 
 /* Общий Header */
-.chat-header { 
+.chat-header {
     height: 70px;
-    padding: 0 24px; 
-    border-bottom: 1px solid #0f1714; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    background-color: #080b0a; 
+    padding: 0 24px;
+    border-bottom: 1px solid #0f1714;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #080b0a;
     z-index: 10;
     flex-shrink: 0;
 }
@@ -285,14 +276,14 @@ onUnmounted(() => {
     position: relative;
 }
 
-.sidebar { 
-    width: 260px; 
-    background-color: #080b0a; 
-    border-right: 1px solid #0f1714; 
-    display: flex; 
-    flex-direction: column; 
+.sidebar {
+    width: 260px;
+    background-color: #080b0a;
+    border-right: 1px solid #0f1714;
+    display: flex;
+    flex-direction: column;
     flex-shrink: 0;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .sidebar:not(.is-open) {
     margin-left: -261px;
@@ -309,11 +300,11 @@ onUnmounted(() => {
 .empty-state { text-align: center; color: #64615c; margin-top: auto; margin-bottom: auto; font-size: 15px; }
 
 .message { display: flex; gap: 16px; align-items: flex-start; max-width: 100%; transition: margin 0.2s ease; }
-.msg-avatar { 
-    width: 40px; height: 40px; border-radius: 12px; 
+.msg-avatar {
+    width: 40px; height: 40px; border-radius: 12px;
     background-color: #080b0a; border: 1px solid;
-    display: flex; justify-content: center; align-items: center; 
-    font-weight: bold; font-size: 18px; flex-shrink: 0; 
+    display: flex; justify-content: center; align-items: center;
+    font-weight: bold; font-size: 18px; flex-shrink: 0;
 }
 .msg-content { max-width: calc(100% - 56px); }
 .msg-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
@@ -322,11 +313,11 @@ onUnmounted(() => {
 
 .msg-bubble { background-color: transparent; border: 1px solid transparent; padding: 2px 0; border-radius: 8px; }
 .msg-bubble.is-mine {
-    background-color: #1a231e;    
-    border: 1px solid #233129;      
-    padding: 10px 16px;             
-    border-radius: 16px;            
-    border-top-left-radius: 4px;    
+    background-color: #1a231e;
+    border: 1px solid #233129;
+    padding: 10px 16px;
+    border-radius: 16px;
+    border-top-left-radius: 4px;
 }
 .msg-text { font-size: 15px; line-height: 1.5; color: #c8c2b8; margin: 0; word-break: break-word; }
 
@@ -334,11 +325,11 @@ onUnmounted(() => {
 :deep(.msg-link) { color: #5fca08; text-decoration: underline; text-underline-offset: 2px; }
 :deep(.msg-link:hover) { color: #88ffb4; }
 
-.chat-input-area { 
-    flex-shrink: 0; 
-    padding: 0 24px 24px 24px; 
+.chat-input-area {
+    flex-shrink: 0;
+    padding: 0 24px 24px 24px;
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
-    background-color: #050807; 
+    background-color: #050807;
 }
 .input-wrapper { background-color: #080b0a; border: 1px solid #0f1714; border-radius: 16px; display: flex; align-items: flex-end; padding: 12px 20px; transition: border-color 0.2s ease; }
 .input-wrapper:focus-within { border-color: rgba(95, 202, 8, 0.4); }
@@ -352,14 +343,14 @@ onUnmounted(() => {
 @media (max-width: 768px) {
     .status-text { display: none; }
     .chat-header { padding: 0 16px; }
-    
+
     .sidebar {
         position: fixed;
         top: 70px;
         left: 0;
         bottom: 0;
         z-index: 100;
-        margin-left: 0 !important; 
+        margin-left: 0 !important;
         transform: translateX(-100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 5px 0 15px rgba(0,0,0,0.5);

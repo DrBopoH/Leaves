@@ -2,18 +2,16 @@
 package handlers
 
 import (
-	"net/http"
 	"database/sql"
 	"encoding/json"
-	
+	"net/http"
+
 	"fmt"
-	
+
 	"golang.org/x/crypto/bcrypt"
-	
+
 	"leaves/source/auth"
 )
-
-
 
 type AuthRequest struct {
 	Username   string `json:"username,omitempty"`
@@ -32,8 +30,6 @@ type User struct {
 	Username     string
 	PasswordHash string
 }
-
-
 
 func Signup(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +55,7 @@ func Signup(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("\n[II] Sign up request successfully by \"%s (%s)\" user\n", req.Username, req.Email)		// DEBUG PRINT
+		fmt.Printf("\n[II] Sign up request successfully by \"%s (%s)\" user\n", req.Username, req.Email) // DEBUG PRINT
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(AuthResponse{Status: "success", Message: "Account created successfully!"})
 	}
@@ -110,18 +106,16 @@ func Signin(db *sql.DB) http.HandlerFunc {
 		cookieString := cookie.String() + "; Partitioned"
 		w.Header().Add("Set-Cookie", cookieString)
 
-		fmt.Printf("\n[II] Sign in request successfully by \"%s\" user.\n", user.Username)		// DEBUG PRINT
+		fmt.Printf("\n[II] Sign in request successfully by \"%s\" user.\n", user.Username) // DEBUG PRINT
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(AuthResponse{Status: "success", Message: "Successfully signed in!"})
 	}
 }
 
-
-
 func Me() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		
+
 		cookie, err := r.Cookie("auth_token")
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -139,7 +133,7 @@ func Me() http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]any{
 			"status": "success",
 			"user": map[string]any{
-				"id": claims.UserID,
+				"id":       claims.UserID,
 				"username": claims.Username,
 			},
 		})
