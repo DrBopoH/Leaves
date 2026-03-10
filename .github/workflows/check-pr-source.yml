@@ -1,0 +1,17 @@
+name: Enforce PR Source Branch
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if source branch is test-main
+        if: github.head_ref != 'test-main'
+        run: |
+          echo "Error: Pull Requests to the main branch are ONLY allowed from the test-main branch!!"
+          echo "Current source branch: ${{ github.head_ref }}"
+          exit 1
