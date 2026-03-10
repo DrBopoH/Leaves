@@ -18,10 +18,11 @@ const isLoading = ref(false);
 const showPassword = ref(false);
 
 const clientError = computed(() => {
-    if (!email.value && !password.value && (isLogin.value || !username.value)) return '';    
-    if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return 'Invalid email format';
-    if (password.value && password.value.length < 6) return 'Password is too short';
-    return '';
+	if (!email.value && !password.value && (isLogin.value || !username.value)) return '';
+	if (!isLogin.value && username.value && (username.value.length < 3 || username.value.length > 30)) return 'Username must be between 3 and 30 characters';
+	if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return 'Invalid email format';
+	if (password.value && password.value.length < 8) return 'Password must be at least 8 characters';
+	return '';
 });
 
 const isFormValid = computed(() => {
@@ -38,31 +39,31 @@ const toggleMode = () => {
 };
 
 const handleSubmit = async () => {
-    if (!isFormValid.value) return;
+	if (!isFormValid.value) return;
 
-    isLoading.value = true;
-    serverMessage.value = '';
+	isLoading.value = true;
+	serverMessage.value = '';
 
-    try {
-        if (isLogin.value) {
-            const result = await signinUser({ email: email.value, password: password.value, rememberMe: rememberMe.value });
-            serverMessage.value = result.message; 
-            
-            const user = await fetchMe();
-            if (user) userStore.setUser(user);
-            router.push('/app');
-        
-        } else {
-            const result = await signupUser({ username: username.value, email: email.value, password: password.value });
-            serverMessage.value = result.message; 
+	try {
+		if (isLogin.value) {
+			const result = await signinUser({ email: email.value, password: password.value, rememberMe: rememberMe.value });
+			serverMessage.value = result.message;
 
-            setTimeout(() => { isLogin.value = true; }, 1500);
-        }
-    } catch (error: any) {
-        serverMessage.value = error.message || 'Internal server error';
-    } finally {
-        isLoading.value = false;
-    }
+			const user = await fetchMe();
+			if (user) userStore.setUser(user);
+			router.push('/app');
+
+		} else {
+			const result = await signupUser({ username: username.value, email: email.value, password: password.value });
+			serverMessage.value = result.message;
+
+			setTimeout(() => { isLogin.value = true; }, 1500);
+		}
+	} catch (error: any) {
+		serverMessage.value = error.message || 'Internal server error';
+	} finally {
+		isLoading.value = false;
+	}
 };
 </script>
 
@@ -293,7 +294,7 @@ const handleSubmit = async () => {
 
 .input-box input {
     width: 100%;
-    background-color: #040605; 
+    background-color: #040605;
     border: 1px solid #0f1714;
     border-radius: 16px;
     padding: 12px 16px;

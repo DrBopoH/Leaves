@@ -6,12 +6,50 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"regexp"
+	"strings"
+	"sync"
+	"time"
 	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"leaves/source/auth"
 )
+
+var (
+	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	
+	// Simple In-Memory Rate Limiter for Auth endpoints
+	rlMutex sync.Mutex
+	rlMap   = make(map[string]int)
+	rlLast  = time.Now()
+)
+
+func isRateLimited(ip string) bool {
+	rlMutex.Lock()
+	defer rlMutex.Unlock()
+
+	// Reset limits every minute
+	if time.Since(rlLast) > time.Minute {
+		rlMap = make(map[string]int)
+		rlLast = time.Now()
+	}
+
+	rlMap[ip]++
+	if rlMap[ip] > 10 { // Max 10 attempts per minute per IP
+		return true
+	}
+	return false
+}
+
+func getIP(r *http.Request) string {
+	ip := r.Header.Get("X-Forwarded-For")
+	if ip == "" {
+		ip = r.RemoteAddr
+	}
+	return ip
+}
 
 type AuthRequest struct {
 	Username   string `json:"username,omitempty"`
@@ -34,11 +72,37 @@ type User struct {
 func Signup(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		
+		if isRateLimited(getIP(r)) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Too many requests. Please try again later."})
+			return
+		}
+		
 		var req AuthRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid request format"})
+			return
+		}
+
+		req.Email = strings.TrimSpace(req.Email)
+		req.Username = strings.TrimSpace(req.Username)
+
+		if len(req.Password) < 8 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Password must be at least 8 characters"})
+			return
+		}
+		if len(req.Username) < 3 || len(req.Username) > 30 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Username must be between 3 and 30 characters"})
+			return
+		}
+		if !emailRegex.MatchString(strings.ToLower(req.Email)) || len(req.Email) > 254 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid email format"})
 			return
 		}
 
@@ -64,6 +128,13 @@ func Signup(db *sql.DB) http.HandlerFunc {
 func Signin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		
+		if isRateLimited(getIP(r)) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Too many requests. Please try again later."})
+			return
+		}
+		
 		var req AuthRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
