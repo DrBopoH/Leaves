@@ -18,9 +18,10 @@ const isLoading = ref(false);
 const showPassword = ref(false);
 
 const clientError = computed(() => {
-	if (!email.value && !password.value && (isLogin.value || !username.value)) return '';    
+	if (!email.value && !password.value && (isLogin.value || !username.value)) return '';
+	if (!isLogin.value && username.value && (username.value.length < 3 || username.value.length > 30)) return 'Username must be between 3 and 30 characters';
 	if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return 'Invalid email format';
-	if (password.value && password.value.length < 6) return 'Password is too short';
+	if (password.value && password.value.length < 8) return 'Password must be at least 8 characters';
 	return '';
 });
 
@@ -46,15 +47,15 @@ const handleSubmit = async () => {
 	try {
 		if (isLogin.value) {
 			const result = await signinUser({ email: email.value, password: password.value, rememberMe: rememberMe.value });
-			serverMessage.value = result.message; 
-			
+			serverMessage.value = result.message;
+
 			const user = await fetchMe();
 			if (user) userStore.setUser(user);
 			router.push('/app');
-		
+
 		} else {
 			const result = await signupUser({ username: username.value, email: email.value, password: password.value });
-			serverMessage.value = result.message; 
+			serverMessage.value = result.message;
 
 			setTimeout(() => { isLogin.value = true; }, 1500);
 		}
@@ -70,7 +71,7 @@ const handleSubmit = async () => {
 	<div class="auth-layout">
 		<div class="glow-orb top-left"></div>
         <div class="glow-orb bottom-right"></div>
-		
+
 		<div class="brand-header">
 			<div class="logo-wrapper">
 				<img src="/Logo.svg" alt="Leaves" />
@@ -91,7 +92,7 @@ const handleSubmit = async () => {
 				<div style="position: relative;">
 					<transition name="fade" mode="out-in">
 						<div :key="isLogin ? 'login-inputs' : 'reg-inputs'" class="inputs-container">
-							
+
 							<div v-if="!isLogin" class="input-box" style="margin-bottom: 28px;">
 								<input type="text" v-model="username" placeholder="username" required />
 							</div>
@@ -108,7 +109,7 @@ const handleSubmit = async () => {
 									<circle v-if="showPassword" cx="12" cy="12" r="3"></circle>
 								</svg>
 							</div>
-							
+
 							<div v-if="isLogin" class="options-row">
 								<label class="remember-me">
 									<input type="checkbox" v-model="rememberMe" />
@@ -119,7 +120,7 @@ const handleSubmit = async () => {
 							</div>
 						</div>
 					</transition>
-				</div>	
+				</div>
 
 				<div class="error-reservoir" :class="{ 'has-error': clientError || serverMessage }">
 					<div class="error-content">
@@ -278,7 +279,7 @@ const handleSubmit = async () => {
 
 .input-box input {
     width: 100%;
-    background-color: #040605; 
+    background-color: #040605;
     border: 1px solid #0f1714;
     border-radius: 16px;
     padding: 12px 16px;
