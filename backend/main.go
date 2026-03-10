@@ -26,6 +26,7 @@ func enableCORS(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 
 		if origin != externalApiUrl {
+			log.Printf("[DEBUG] CORS mismatch. Request Origin: '%s', Expected: '%s'\n", origin, externalApiUrl)
 			http.Error(w, "Forbidden: Invalid Origin. Only frontend is trusted.", http.StatusForbidden)
 			return
 		}
