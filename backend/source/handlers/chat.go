@@ -82,6 +82,11 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 				break
 			}
 
+			if len(msgPayload.Text) == 0 || len(msgPayload.Text) > 2000 {
+				log.Printf("[WW] User '%s' sent an invalid message length: %d", claims.Username, len(msgPayload.Text))
+				continue
+			}
+
 			res, err := db.Exec("INSERT INTO messages (user_id, content) VALUES (?, ?)", claims.UserID, msgPayload.Text)
 			if err != nil {
 				log.Printf("[EE] DB insert error: %v", err)

@@ -53,6 +53,10 @@ func main() {
 		log.Println(warn_envNotFound) // DEBUG LOG
 	}
 
+	if os.Getenv("JWT_SECRET_KEY") == "" || len(os.Getenv("JWT_SECRET_KEY")) < 16 {
+		log.Fatal("[FF] Fatal: JWT_SECRET_KEY is missing or too short in environment variables. Aborting.")
+	}
+
 	externalApiUrl = os.Getenv("EXTERNAL_API_URL")
 	if externalApiUrl == "" {
 		externalApiUrl = default_externalApiUrl
