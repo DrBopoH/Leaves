@@ -78,7 +78,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 3rem;
-    background: rgba(5, 8, 7, 0.8);
+    background: rgba(18, 18, 18, 0.8);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid #0f1714;
 }
