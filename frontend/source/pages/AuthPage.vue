@@ -22,11 +22,11 @@ const isLoading = ref(false);
 const showPassword = ref(false);
 
 const clientError = computed(() => {
-	if (!email.value && !password.value && (isLogin.value || !username.value)) return '';
-	if (!isLogin.value && username.value && (username.value.length < 3 || username.value.length > 30)) return 'Username must be between 3 and 30 characters';
-	if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return 'Invalid email format';
-	if (password.value && password.value.length < 8) return 'Password must be at least 8 characters';
-	return '';
+    if (!email.value && !password.value && (isLogin.value || !username.value)) return '';
+    if (!isLogin.value && username.value && (username.value.length < 3 || username.value.length > 30)) return 'Username must be between 3 and 30 characters';
+    if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return 'Invalid email format';
+    if (password.value && password.value.length < 8) return 'Password must be at least 8 characters';
+    return '';
 });
 
 const isFormValid = computed(() => {
@@ -43,31 +43,31 @@ const toggleMode = () => {
 };
 
 const handleSubmit = async () => {
-	if (!isFormValid.value) return;
+    if (!isFormValid.value) return;
 
-	isLoading.value = true;
-	serverMessage.value = '';
+    isLoading.value = true;
+    serverMessage.value = '';
 
-	try {
-		if (isLogin.value) {
-			const result = await signinUser({ email: email.value, password: password.value, rememberMe: rememberMe.value });
-			serverMessage.value = result.message;
+    try {
+        if (isLogin.value) {
+            const result = await signinUser({ email: email.value, password: password.value, rememberMe: rememberMe.value });
+            serverMessage.value = result.message;
 
-			const user = await fetchMe();
-			if (user) userStore.setUser(user);
-			router.push('/app');
+            const user = await fetchMe();
+            if (user) userStore.setUser(user);
+            router.push('/app');
 
-		} else {
-			const result = await signupUser({ username: username.value, email: email.value, password: password.value });
-			serverMessage.value = result.message;
+        } else {
+            const result = await signupUser({ username: username.value, email: email.value, password: password.value });
+            serverMessage.value = result.message;
 
-			setTimeout(() => { isLogin.value = true; }, 1500);
-		}
-	} catch (error: any) {
-		serverMessage.value = error.message || 'Internal server error';
-	} finally {
-		isLoading.value = false;
-	}
+            setTimeout(() => { isLogin.value = true; }, 1500);
+        }
+    } catch (error: any) {
+        serverMessage.value = error.message || 'Internal server error';
+    } finally {
+        isLoading.value = false;
+    }
 };
 </script>
 
@@ -238,20 +238,22 @@ const handleSubmit = async () => {
     font-size: 28px;
     font-weight: 700;
     margin: 0;
-    color: #c8c2b8;
+    color: var(--color-text-primary, #c8c2b8);
     letter-spacing: -0.5px;
+    transition: color 0.3s ease;
 }
 
 .brand-subtitle {
     font-size: 13px;
-    color: #8a867f;
+    color: var(--color-text-secondary, #8a867f);
     margin: 0;
     line-height: 1.5;
+    transition: color 0.3s ease;
 }
 
 .auth-card {
-    background-color: #080b0a;
-    border: 1px solid #0f1714;
+    background-color: var(--color-surface, #080b0a);
+    border: 1px solid var(--color-border, #0f1714);
     border-radius: 20px;
     padding: 40px 32px;
     width: 100%;
@@ -268,14 +270,16 @@ const handleSubmit = async () => {
     font-size: 20px;
     font-weight: 600;
     margin: 0 0 8px 0;
-    color: #c8c2b8;
+    color: var(--color-text-primary, #c8c2b8);
+    transition: color 0.3s ease;
 }
 
 .card-headings p {
     font-size: 13px;
-    color: #8a867f;
+    color: var(--color-text-secondary, #8a867f);
     line-height: 1.5;
     margin: 0;
+    transition: color 0.3s ease;
 }
 
 .form-content {
@@ -298,25 +302,45 @@ const handleSubmit = async () => {
 
 .input-box input {
     width: 100%;
-    background-color: #040605;
-    border: 1px solid #0f1714;
+    background-color: var(--color-surface-alt, #040605);
+    border: 1px solid var(--color-border, #0f1714);
     border-radius: 16px;
     padding: 12px 16px;
-    color: #c8c2b8;
+    color: var(--color-text-primary, #c8c2b8);
     font-size: 14px;
     outline: none;
     transition: all 0.2s ease;
 }
 
 .input-box input::placeholder {
-    color: #64615c;
+    color: var(--color-text-secondary, #64615c);
 }
 
 .input-box input:focus {
-    background-color: #050807;
+    background-color: var(--color-surface, #050807);
     border-color: #5fca08;
     box-shadow: 0 0 0 2px rgba(95, 202, 8, 0.1);
 }
+
+/* --- ФИКС ДЛЯ АВТОЗАПОЛНЕНИЯ (PSM) --- */
+.input-box input:-webkit-autofill,
+.input-box input:-webkit-autofill:hover,
+.input-box input:-webkit-autofill:focus,
+.input-box input:-webkit-autofill:active {
+    /* Используем inset тень вместо background-color, чтобы перебить стили браузера */
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-alt, #040605) inset !important;
+    /* Устанавливаем цвет текста, так как обычный color сбрасывается */
+    -webkit-text-fill-color: var(--color-text-primary, #c8c2b8) !important;
+    transition: background-color 5000s ease-in-out 0s; /* Хаковатый фикс для некоторых версий хрома */
+    border: 1px solid var(--color-border, #0f1714);
+}
+
+/* Возвращаем красивую обводку и фон при фокусе даже на автозаполненном поле */
+.input-box input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface, #050807) inset, 0 0 0 2px rgba(95, 202, 8, 0.1) !important;
+    border-color: #5fca08 !important;
+}
+/* -------------------------------------- */
 
 .input-box.has-icon input {
     padding-right: 45px;
@@ -329,7 +353,7 @@ const handleSubmit = async () => {
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
-    color: #64615c;
+    color: var(--color-text-secondary, #64615c);
     cursor: pointer;
     transition: color 0.2s;
     user-select: none;
@@ -340,7 +364,7 @@ const handleSubmit = async () => {
 }
 
 .eye-icon:hover {
-    color: #8a867f;
+    color: var(--color-text-primary, #8a867f);
 }
 
 .options-row {
@@ -356,13 +380,13 @@ const handleSubmit = async () => {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #8a867f;
+    color: var(--color-text-secondary, #8a867f);
     cursor: pointer;
     transition: color 0.2s ease;
 }
 
 .remember-me:hover {
-    color: #c8c2b8;
+    color: var(--color-text-primary, #c8c2b8);
 }
 
 .remember-me input {
@@ -372,8 +396,8 @@ const handleSubmit = async () => {
 .checkmark {
     width: 14px;
     height: 14px;
-    background-color: #040605;
-    border: 1px solid #64615c;
+    background-color: var(--color-surface-alt, #040605);
+    border: 1px solid var(--color-text-secondary, #64615c);
     border-radius: 3px;
     display: inline-block;
     position: relative;
@@ -398,17 +422,17 @@ const handleSubmit = async () => {
 }
 
 .remember-me:hover input:not(:checked) + .checkmark {
-    border-color: #8a867f;
+    border-color: var(--color-text-secondary, #8a867f);
 }
 
 .forgot-password {
-    color: #8a867f;
+    color: var(--color-text-secondary, #8a867f);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .forgot-password:hover {
-    color: #c8c2b8;
+    color: var(--color-text-primary, #c8c2b8);
 }
 
 .error-reservoir {
@@ -439,7 +463,7 @@ const handleSubmit = async () => {
 }
 
 .error-client {
-    color: #8a867f;
+    color: var(--color-text-secondary, #8a867f);
 }
 
 .error-server {
@@ -460,8 +484,8 @@ const handleSubmit = async () => {
 }
 
 .submit-action:disabled {
-    background-color: #0f1714;
-    color: #64615c;
+    background-color: var(--color-border, #0f1714);
+    color: var(--color-text-secondary, #64615c);
     cursor: not-allowed;
     box-shadow: none;
 }
@@ -480,7 +504,7 @@ const handleSubmit = async () => {
 }
 
 .submit-action.is-loading {
-    background-color: #040605;
+    background-color: var(--color-surface-alt, #040605);
     color: #5fca08;
     border: 1px solid #5fca08;
     cursor: wait;
@@ -498,7 +522,7 @@ const handleSubmit = async () => {
     top: 50%;
     width: 25%;
     height: 1px;
-    background-color: #0f1714;
+    background-color: var(--color-border, #0f1714);
 }
 
 .social-divider::before { left: 0; }
@@ -506,9 +530,10 @@ const handleSubmit = async () => {
 
 .social-divider span {
     font-size: 12px;
-    color: #64615c;
+    color: var(--color-text-secondary, #64615c);
     padding: 0 10px;
-    background-color: #080b0a;
+    background-color: var(--color-surface, #080b0a);
+    transition: background-color 0.3s ease;
 }
 
 .social-circles {
@@ -521,8 +546,8 @@ const handleSubmit = async () => {
 .s-circle {
     width: 44px;
     height: 44px;
-    background-color: #040605;
-    border: 1px solid #0f1714;
+    background-color: var(--color-surface-alt, #040605);
+    border: 1px solid var(--color-border, #0f1714);
     border-radius: 32px;
     display: flex;
     align-items: center;
@@ -533,8 +558,8 @@ const handleSubmit = async () => {
 }
 
 .s-circle:hover {
-    background-color: #0f1714;
-    border-color: #64615c;
+    background-color: var(--color-surface, #0f1714);
+    border-color: var(--color-text-secondary, #64615c);
 }
 
 .social-icon {
@@ -546,11 +571,11 @@ const handleSubmit = async () => {
 .auth-footer {
     text-align: center;
     font-size: 13px;
-    color: #8a867f;
+    color: var(--color-text-secondary, #8a867f);
 }
 
 .auth-footer .leaf-link {
-    color: #c8c2b8;
+    color: var(--color-text-primary, #c8c2b8);
     text-decoration: none;
     font-weight: 500;
     margin-left: 4px;
@@ -570,4 +595,22 @@ const handleSubmit = async () => {
 .fade-form-leave-active { position: absolute; top: 0; left: 0; width: 100%; }
 .fade-form-enter-from { opacity: 0; transform: translateY(-10px); }
 .fade-form-leave-to { opacity: 0; transform: translateY(10px); }
+</style>
+
+<style>
+/* Эти стили не scoped, поэтому они переопределят переменные 
+  для всего компонента, когда на тег html или body добавится класс или атрибут светлой темы 
+*/
+html[data-theme="light"],
+html[theme="light"],
+body[data-theme="light"],
+body.light,
+body.light-theme,
+.light-theme {
+    --color-surface: #ffffff !important;
+    --color-surface-alt: #f0f2f5 !important;
+    --color-border: #dcdcdc !important;
+    --color-text-primary: #1a1a1a !important;
+    --color-text-secondary: #666666 !important;
+}
 </style>
