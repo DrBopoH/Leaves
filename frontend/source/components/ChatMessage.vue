@@ -42,13 +42,13 @@ const formatMessage = (text: string) => {
 
     safeText = safeText.replace(/^> (.*?)\r?$/gm, '<blockquote class="msg-quote">$1</blockquote>');
 
-    safeText = safeText.replace(/^(---+)(.+?)(---+) *\r?$/gm, (match, p1, p2, p3) => {
-        return `<div class="msg-text-divider" style="--grow-left: ${p1.length}; --grow-right: ${p3.length};"><span>${p2.trim()}</span></div>`;
-    });
-
     safeText = safeText.replace(/^(---+) *\r?$/gm, (match, p1) => {
         let pct = Math.min(100, p1.length * 10);
         return `<hr class="msg-divider" style="width: ${pct}%" />`;
+    });
+
+    safeText = safeText.replace(/^(---+)(.+?)(---+) *\r?$/gm, (match, p1, p2, p3) => {
+        return `<div class="msg-text-divider"><div class="msg-text-divider-line" style="flex-grow: ${p1.length}"></div><span>${p2.trim()}</span><div class="msg-text-divider-line" style="flex-grow: ${p3.length}"></div></div>`;
     });
 
     safeText = safeText.replace(/\\n/g, '<br>'); // текстовый \n
@@ -169,19 +169,11 @@ const formatMessage = (text: string) => {
     text-align: center;
     word-break: break-word;
 }
-:deep(.msg-text-divider::before),
-:deep(.msg-text-divider::after) {
-    content: '';
+:deep(.msg-text-divider-line) {
     height: 2px;
     background-color: var(--text-muted);
     border-radius: 2px;
     flex-basis: 0;
-}
-:deep(.msg-text-divider::before) {
-    flex-grow: var(--grow-left);
-}
-:deep(.msg-text-divider::after) {
-    flex-grow: var(--grow-right);
 }
 
 :global(.app-layout.light-theme .msg-bubble:not(.is-mine) .msg-text) {
