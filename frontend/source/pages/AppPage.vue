@@ -1,4 +1,8 @@
-<script setup lang="ts"> // source/pages/AppPage.vue
+<script setup lang="ts">
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// source/pages/AppPage.vue
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../stores/user';

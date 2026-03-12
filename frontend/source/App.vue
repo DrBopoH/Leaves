@@ -1,4 +1,8 @@
-<script setup lang="ts"> // source/App.vue
+<script setup lang="ts">
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// source/App.vue
 import { onMounted } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
 import { fetchMe } from './api/auth';

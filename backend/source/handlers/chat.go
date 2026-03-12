@@ -1,4 +1,7 @@
-// source/handlers/chat.go
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Package handlers source/handlers/chat.go
 package handlers
 
 import (
@@ -15,6 +18,21 @@ import (
 
 	"github.com/gorilla/websocket"
 )
+
+const sendMessageSQL string = `
+INSERT INTO chat (username, email) VALUES (?, ?)
+`
+const getHistorySQL string = `
+SELECT sub.id, sub.user_id, u.username, sub.content, sub.created_at
+FROM (
+	SELECT id, user_id, content, created_at
+	FROM messages
+	ORDER BY id DESC
+	LIMIT 100
+) sub
+JOIN users u ON sub.user_id = u.id
+ORDER BY sub.id ASC
+`
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -87,7 +105,7 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 				continue
 			}
 
-			res, err := db.Exec("INSERT INTO messages (user_id, content) VALUES (?, ?)", claims.UserID, msgPayload.Text)
+			res, err := db.Exec(sendMessageSQL, claims.UserID, msgPayload.Text)
 			if err != nil {
 				log.Printf("[EE] DB insert error: %v", err)
 				continue
@@ -143,17 +161,7 @@ func GetHistory(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.Query(`
-			SELECT sub.id, sub.user_id, u.username, sub.content, sub.created_at
-			FROM (
-				SELECT id, user_id, content, created_at
-				FROM messages
-				ORDER BY id DESC
-				LIMIT 100
-			) sub
-			JOIN users u ON sub.user_id = u.id
-			ORDER BY sub.id ASC
-		`)
+		rows, err := db.Query(getHistorySQL)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
