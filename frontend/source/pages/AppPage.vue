@@ -11,6 +11,12 @@ import { fetchChatHistory } from '../api/auth';
 const router = useRouter();
 const userStore = useUserStore();
 
+// === ТЕМА ===
+const isDarkTheme = ref(true);
+const toggleTheme = () => {
+    isDarkTheme.value = !isDarkTheme.value;
+};
+
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const ws = ref<WebSocket | null>(null);
@@ -180,7 +186,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="app-layout">
+    <div class="app-layout" :class="{ 'light-theme': !isDarkTheme }">
 
         <div class="chat-header">
             <div class="header-left">
@@ -203,6 +209,23 @@ onUnmounted(() => {
             </div>
 
             <div class="header-right header-status">
+                <button class="theme-btn" @click="toggleTheme" title="Переключить тему">
+                    <svg v-if="isDarkTheme" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
                 <span class="status-dot" :class="{ online: isConnected }"></span>
                 <span class="status-text">{{ isConnected ? 'Connected' : 'Reconnecting...' }}</span>
             </div>
@@ -276,24 +299,61 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* ПЕРЕМЕННЫЕ ТЕМ */
 .app-layout {
+    /* ТЁМНАЯ ТЕМА (ПО УМОЛЧАНИЮ) */
+    --bg-base: #050807;
+    --bg-surface: #080b0a;
+    --border: #0f1714;
+    --bg-active: #1a231e;
+    --border-active: #233129;
+    --text-primary: #c8c2b8;
+    --text-secondary: #64615c;
+    --text-muted: #8a867f;
+    --accent: #5fca08;
+    --accent-hover: #4da806;
+    --link-color: #5fca08;
+    --link-hover: #88ffb4;
+
     display: flex;
     flex-direction: column;
     height: 100dvh;
-    background-color: #050807;
-    color: #c8c2b8;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
     overflow: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* СВЕТЛАЯ НЕОНОВАЯ ТЕМА */
+.app-layout.light-theme {
+    --bg-base: #f4f7f6;
+    --bg-surface: #ffffff;
+    --border: #e2e8e4;
+    --bg-active: #e8f5e9;
+    --border-active: #c8e6c9;
+    --text-primary: #1a231e;
+    --text-secondary: #6b7280;
+    --text-muted: #4b5563;
+    --accent: #5fca08; 
+    --accent-hover: #4da806;
+    --link-color: #3d8c00;
+    --link-hover: #5fca08;
+}
+
+/* Плавные переходы для всех элементов */
+.chat-header, .sidebar, .input-wrapper, .msg-bubble, .msg-avatar, .channel, .chat-input, .channel-toggle-btn {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
 }
 
 /* Общий Header */
 .chat-header {
     height: 70px;
     padding: 0 24px;
-    border-bottom: 1px solid #0f1714;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #080b0a;
+    background-color: var(--bg-surface);
     z-index: 10;
     flex-shrink: 0;
 }
@@ -310,15 +370,14 @@ onUnmounted(() => {
     cursor: pointer;
     padding: 6px 10px;
     border-radius: 8px;
-    transition: background-color 0.2s;
-    color: #c8c2b8;
+    color: var(--text-primary);
     margin-left: -10px;
 }
 .channel-toggle-btn:hover {
-    background-color: #0f1714;
+    background-color: var(--border);
 }
 .channel-hash {
-    color: #64615c;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -329,11 +388,39 @@ onUnmounted(() => {
     letter-spacing: 0.3px;
 }
 .brand-logo { width: 28px; height: 28px; }
-.brand-text { font-size: 20px; font-weight: 700; color: #5fca08; }
+.brand-text { font-size: 20px; font-weight: 700; color: var(--accent); }
 
-.header-status { gap: 8px; font-size: 13px; color: #64615c; }
+/* ======== КНОПКА СМЕНЫ ТЕМЫ ======== */
+.theme-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-right: 15px;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary); /* По умолчанию берет серый цвет из темы */
+}
+
+.theme-btn:hover {
+    background: var(--border);
+    color: var(--accent); /* При наведении берет зеленый цвет из темы */
+    transform: scale(1.05); 
+}
+
+.theme-btn:active,
+.theme-btn:focus {
+    color: var(--accent); /* При фокусе/нажатии зеленый цвет */
+    transform: scale(0.95); 
+}
+/* =================================== */
+
+.header-status { gap: 8px; font-size: 13px; color: var(--text-secondary); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #dc3545; }
-.status-dot.online { background-color: #5fca08; box-shadow: 0 0 8px rgba(95, 202, 8, 0.4); }
+.status-dot.online { background-color: var(--accent); box-shadow: 0 0 8px rgba(95, 202, 8, 0.4); }
 
 .main-content {
     display: flex;
@@ -344,66 +431,105 @@ onUnmounted(() => {
 
 .sidebar {
     width: 260px;
-    background-color: #080b0a;
-    border-right: 1px solid #0f1714;
+    background-color: var(--bg-surface);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s;
 }
 .sidebar:not(.is-open) {
     margin-left: -261px;
 }
 .channels { padding: 15px 10px; flex: 1; overflow-y: auto; }
-.channel { padding: 10px 15px; border-radius: 8px; color: #8a867f; cursor: pointer; transition: all 0.2s; font-weight: 500; }
-.channel:hover { background-color: #0f1714; color: #c8c2b8; }
-.channel.active { background-color: #1a231e; color: #5fca08; }
+.channel { padding: 10px 15px; border-radius: 8px; color: var(--text-muted); cursor: pointer; font-weight: 500; }
+.channel:hover { background-color: var(--border); color: var(--text-primary); }
+.channel.active { background-color: var(--bg-active); color: var(--accent); }
 
 .sidebar-overlay { display: none; }
 
-.chat-area { flex: 1; display: flex; flex-direction: column; background-color: #050807; min-width: 0; }
+.chat-area { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-base); min-width: 0; }
 .messages-container { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; scroll-behavior: smooth; }
-.empty-state { text-align: center; color: #64615c; margin-top: auto; margin-bottom: auto; font-size: 15px; }
+.empty-state { text-align: center; color: var(--text-secondary); margin-top: auto; margin-bottom: auto; font-size: 15px; }
 
 .message { display: flex; gap: 16px; align-items: flex-start; max-width: 100%; transition: margin 0.2s ease; }
 .msg-avatar {
     width: 40px; height: 40px; border-radius: 12px;
-    background-color: #080b0a; border: 1px solid;
+    background-color: var(--bg-surface); border: 1px solid;
     display: flex; justify-content: center; align-items: center;
     font-weight: bold; font-size: 18px; flex-shrink: 0;
 }
 .msg-content { max-width: calc(100% - 56px); }
 .msg-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
 .msg-username { font-weight: 600; font-size: 15px; }
-.msg-time { font-size: 12px; color: #64615c; }
+.msg-time { font-size: 12px; color: var(--text-secondary); }
+
+/* Фикс для ников и аватарок в светлой теме, чтобы ядовитые цвета читались на белом */
+.app-layout.light-theme .msg-username,
+.app-layout.light-theme .msg-avatar {
+    filter: brightness(0.75) contrast(1.2);
+}
 
 .msg-bubble { background-color: transparent; border: 1px solid transparent; padding: 2px 0; border-radius: 8px; }
 .msg-bubble.is-mine {
-    background-color: #1a231e;
-    border: 1px solid #233129;
+    background-color: var(--bg-active);
+    border: 1px solid var(--border-active);
     padding: 10px 16px;
     border-radius: 16px;
     border-top-left-radius: 4px;
 }
-.msg-text { font-size: 15px; line-height: 1.5; color: #c8c2b8; margin: 0; word-break: break-word; }
 
-:deep(.msg-image) { max-width: 100%; max-height: 250px; border-radius: 8px; margin-top: 8px; border: 1px solid #0f1714; display: block; }
-:deep(.msg-link) { color: #5fca08; text-decoration: underline; text-underline-offset: 2px; }
-:deep(.msg-link:hover) { color: #88ffb4; }
+/* Общий текст сообщения */
+.msg-text { 
+    font-size: 15px; 
+    line-height: 1.5; 
+    color: var(--text-primary);
+    margin: 0; 
+    word-break: break-word; 
+}
+
+/* Цвет чужих сообщений жестко привязан к читаемым цветам в зависимости от темы */
+.app-layout.light-theme .msg-bubble:not(.is-mine) .msg-text {
+    color: #1a231e;
+    font-weight: 500;
+}
+
+.app-layout:not(.light-theme) .msg-bubble:not(.is-mine) .msg-text {
+    color: #c8c2b8;
+}
+
+:deep(.msg-image) { max-width: 100%; max-height: 250px; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border); display: block; }
+:deep(.msg-link) { color: var(--link-color); text-decoration: underline; text-underline-offset: 2px; }
+:deep(.msg-link:hover) { color: var(--link-hover); }
 
 .chat-input-area {
     flex-shrink: 0;
     padding: 0 24px 24px 24px;
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
-    background-color: #050807;
+    background-color: var(--bg-base);
 }
-.input-wrapper { background-color: #080b0a; border: 1px solid #0f1714; border-radius: 16px; display: flex; align-items: flex-end; padding: 12px 20px; transition: border-color 0.2s ease; }
+.input-wrapper { background-color: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; display: flex; align-items: flex-end; padding: 12px 20px; }
 .input-wrapper:focus-within { border-color: rgba(95, 202, 8, 0.4); }
-.chat-input { flex: 1; background: transparent; border: none; color: #c8c2b8; font-size: 15px; outline: none; resize: none; max-height: 120px; font-family: inherit; line-height: 1.5; padding-top: 2px; }
-.chat-input::placeholder { color: #64615c; }
-.send-btn { background: #5fca08; color: #050807; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; margin-left: 12px; }
-.send-btn:hover:not(:disabled) { background: #4da806; transform: scale(1.05); }
-.send-btn:disabled { background: #1a231e; color: #64615c; cursor: not-allowed; }
+
+/* Поле ввода */
+.chat-input { 
+    flex: 1; 
+    background: transparent; 
+    border: none; 
+    color: var(--text-primary) !important;
+    font-size: 15px; 
+    outline: none; 
+    resize: none; 
+    max-height: 120px; 
+    font-family: inherit; 
+    line-height: 1.5; 
+    padding-top: 2px; 
+}
+.chat-input::placeholder { color: var(--text-secondary) !important; }
+
+.send-btn { background: var(--accent); color: #ffffff; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; margin-left: 12px; }
+.send-btn:hover:not(:disabled) { background: var(--accent-hover); transform: scale(1.05); }
+.send-btn:disabled { background: var(--bg-active); color: var(--text-secondary); cursor: not-allowed; }
 
 .typing-indicator {
     height: 20px;
@@ -454,6 +580,9 @@ onUnmounted(() => {
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 5px 0 15px rgba(0,0,0,0.5);
     }
+    .app-layout.light-theme .sidebar {
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
     .sidebar.is-open {
         transform: translateX(0);
     }
@@ -467,6 +596,10 @@ onUnmounted(() => {
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease;
+    }
+    .app-layout.light-theme .sidebar-overlay {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(2px);
     }
     .sidebar-overlay.is-open {
         opacity: 1;
