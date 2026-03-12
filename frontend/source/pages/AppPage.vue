@@ -229,7 +229,7 @@ onUnmounted(() => {
 
         <div class="main-content">
             <div class="sidebar-overlay" :class="{ 'is-open': isSidebarOpen }" @click="toggleSidebar"></div>
-            <div class="sidebar-overlay right-overlay" :class="{ 'is-open': isRightSidebarOpen && windowWidth <= 768 }" @click="toggleRightSidebar"></div>
+            <div class="sidebar-overlay right-overlay" :class="{ 'is-open': isRightSidebarOpen }" @click="toggleRightSidebar"></div>
 
             <div class="sidebar" :class="{ 'is-open': isSidebarOpen }">
                 <div class="channels">
@@ -289,14 +289,14 @@ onUnmounted(() => {
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
-                            <span class="online-text">Online: {{ allUsers.filter(u => u.online).length }}</span>
+                            <span class="online-text">В сети: {{ allUsers.filter(u => u.online).length }}</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="chat-area">
                     <div class="messages-container" ref="messagesContainer">
-                        <div v-if="messages.length === 0" class="empty-state">No messages yet. Say hi!</div>
+                        <div v-if="messages.length === 0" class="empty-state">Пока нет сообщений. Поздоровайтесь!</div>
 
                         <ChatMessage
                             v-for="(msg, index) in messages"
@@ -316,10 +316,19 @@ onUnmounted(() => {
                         @send="sendMessage"
                         @typing="emitTypingEvent"
                     />
-    </div>
-   </div>
+                </div>
+            </div>
 
-			<div class="right-sidebar" :class="{ 'is-open': isRightSidebarOpen }">
+            <div class="right-sidebar" :class="{ 'is-open': isRightSidebarOpen }">
+                <div class="right-sidebar-header">
+                    <span class="right-sidebar-title">В сети</span>
+                    <button class="close-sidebar-btn" @click="toggleRightSidebar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
                 <UsersList :users="allUsers" />
             </div>
         </div>
@@ -347,13 +356,8 @@ onUnmounted(() => {
     background-color: var(--bg-base);
     color: var(--text-primary);
     overflow: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.app-layout *, .app-layout *::before, .app-layout *::after {
-    transition-duration: 0.3s;
-    transition-timing-function: ease;
-    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    /* Убрали тяжелую анимацию всех элементов, оставили только плавную смену фона и цвета */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .app-layout.light-theme {
@@ -371,6 +375,11 @@ onUnmounted(() => {
     --link-hover: #5fca08;
 }
 
+/* Прицельная анимация только для блоков, которым она реально нужна */
+.sidebar, .right-sidebar, .chat-inner-header, .user-profile, .channel {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .channel-toggle-btn {
     background: transparent;
     border: none;
@@ -382,21 +391,11 @@ onUnmounted(() => {
     border-radius: 8px;
     color: var(--text-primary);
     margin-left: -10px;
+    transition: background-color 0.2s ease;
 }
-.channel-toggle-btn:hover {
-    background-color: var(--border);
-}
-.channel-hash {
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.channel-name {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
+.channel-toggle-btn:hover { background-color: var(--border); }
+.channel-hash { color: var(--text-secondary); display: flex; align-items: center; justify-content: center; }
+.channel-name { font-size: 17px; font-weight: 600; letter-spacing: 0.3px; }
 
 .main-content {
     display: flex;
@@ -412,12 +411,9 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    transition-property: margin-left, background-color, border-color, color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1), ease, ease, ease;
 }
-.sidebar:not(.is-open) {
-    margin-left: -261px;
-}
+.sidebar:not(.is-open) { margin-left: -261px; }
+
 .channels { padding: 10px 10px; flex: 1; overflow-y: auto; }
 .channel { padding: 10px 15px; border-radius: 8px; color: var(--text-muted); cursor: pointer; font-weight: 500; user-select: none; }
 .channel:hover { background-color: var(--border); color: var(--text-primary); }
@@ -438,8 +434,6 @@ onUnmounted(() => {
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 12px 12px;
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 0.3s;
 }
 .avatar {
     width: 28px;
@@ -454,47 +448,23 @@ onUnmounted(() => {
     background-color: var(--bg-surface);
     flex-shrink: 0;
 }
-.user-info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-.username {
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 14px;
-    margin-top: 2px;
-}
+.user-info { display: flex; flex-direction: column; min-width: 0; }
+.username { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-indicator { display: flex; align-items: center; gap: 6px; height: 14px; margin-top: 2px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #dc3545; flex-shrink: 0;}
 .status-dot.online { background-color: var(--accent); box-shadow: 0 0 8px rgba(95, 202, 8, 0.4); }
-.status-text {
-    font-size: 11px;
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-.fade-status-enter-active, .fade-status-leave-active {
-    transition: opacity 0.5s ease;
-}
-.fade-status-enter-from, .fade-status-leave-to {
-    opacity: 0;
-}
+.status-text { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+.fade-status-enter-active, .fade-status-leave-active { transition: opacity 0.5s ease; }
+.fade-status-enter-from, .fade-status-leave-to { opacity: 0; }
 
 .sidebar-overlay { display: none; }
 
 .chat-container {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
-	background-color: transparent;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: transparent;
 }
 .chat-inner-header {
     height: 60px;
@@ -507,25 +477,25 @@ onUnmounted(() => {
     flex-shrink: 0;
 }
 
-.online-users-btn {
-    margin-left: 0;
-}
-.online-icon {
-    color: var(--text-secondary);
-}
-.online-users-btn:hover .online-icon {
-    color: var(--text-primary);
-}
-.online-text {
-    font-size: 14px;
-    font-weight: 600;
+.online-users-btn { margin-left: 0; }
+.online-icon { color: var(--text-secondary); }
+.online-users-btn:hover .online-icon { color: var(--text-primary); }
+.online-text { font-size: 14px; font-weight: 600; }
+
+.chat-area { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 0; 
+    position: relative;
+    /* Учитываем зону безопасности (челки и полоски навигации iOS/Android) */
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-.chat-area { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
 .messages-container {
     flex: 1;
     padding: 8px 12px;
-    padding-bottom: 72px;
+    padding-bottom: 72px; /* Место под инпут */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -533,20 +503,10 @@ onUnmounted(() => {
 }
 .empty-state { text-align: center; color: var(--text-secondary); margin-top: auto; margin-bottom: auto; font-size: 15px; }
 
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-::-webkit-scrollbar-thumb {
-    background: var(--border-active);
-    border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 .right-sidebar {
     width: 240px;
@@ -555,21 +515,36 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    transition-property: margin-right, background-color, border-color, color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1), ease, ease, ease;
 }
-.right-sidebar:not(.is-open) {
-    margin-right: -241px;
+.right-sidebar:not(.is-open) { margin-right: -241px; }
+
+/* Скрываем шапку правой панели на ПК */
+.right-sidebar-header {
+    display: none;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    justify-content: space-between;
 }
+.right-sidebar-title { font-weight: 600; font-size: 16px; color: var(--text-primary); }
+.close-sidebar-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+.close-sidebar-btn:hover { color: var(--text-primary); }
 
 @media (max-width: 768px) {
     .chat-inner-header { padding: 0 16px; }
 
     .sidebar {
         position: fixed;
-        top: 48px;
-        left: 0;
-        bottom: 0;
+        top: 48px; left: 0; bottom: 0;
         z-index: 100;
         margin-left: 0 !important;
         transform: translateX(-100%);
@@ -577,14 +552,15 @@ onUnmounted(() => {
     }
     .right-sidebar {
         position: fixed;
-        top: 48px;
-        right: 0;
-        bottom: 0;
+        top: 48px; right: 0; bottom: 0;
         z-index: 100;
         margin-right: 0 !important;
         transform: translateX(100%);
         box-shadow: -5px 0 15px rgba(0,0,0,0.5);
     }
+    
+    .right-sidebar-header { display: flex; } /* Показываем шапку с крестиком на мобилке */
+
     .app-layout.light-theme .sidebar, .app-layout.light-theme .right-sidebar {
         box-shadow: 5px 0 15px rgba(0,0,0,0.1);
     }
@@ -602,19 +578,22 @@ onUnmounted(() => {
         z-index: 99;
         opacity: 0;
         pointer-events: none;
-        transition-property: opacity, background-color, backdrop-filter;
-        transition-duration: 0.3s;
+        transition: opacity 0.3s ease, background-color 0.3s ease;
     }
+    
+    /* Скрываем overlay правой панели, если мы на десктопе, чтобы не перекрывало чат */
+    .right-overlay:not(.is-open) { display: none; }
+    
     .app-layout.light-theme .sidebar-overlay {
         background: rgba(255, 255, 255, 0.6);
         backdrop-filter: blur(2px);
     }
     .sidebar-overlay.is-open {
+        display: block;
         opacity: 1;
         pointer-events: auto;
     }
-    .right-overlay { z-index: 99; }
 
-    .messages-container { padding: 16px; }
+    .messages-container { padding: 16px;padding-bottom: 64px; }
 }
 </style>
