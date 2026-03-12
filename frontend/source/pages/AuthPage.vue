@@ -170,7 +170,7 @@ const handleSubmit = async () => {
                     <img src="https://api.iconify.design/skill-icons:github-dark.svg" class="social-icon" alt="GitHub" />
                 </a>
                 <a href="#" class="s-circle">
-                    <img src="https://api.iconify.design/mdi:steam.svg?color=%2300adee" class="social-icon" alt="Steam" />
+                    <div class="social-icon steam-gradient" title="Steam"></div>
                 </a>
                 <a href="#" class="s-circle">
                     <img src="https://api.iconify.design/logos:discord-icon.svg" class="social-icon" alt="Discord" />
@@ -568,6 +568,12 @@ const handleSubmit = async () => {
     object-fit: contain;
 }
 
+.steam-gradient {
+    background: linear-gradient(to top, #00adee, #171a21);
+    -webkit-mask: url('https://api.iconify.design/mdi:steam.svg') no-repeat center / contain;
+    mask: url('https://api.iconify.design/mdi:steam.svg') no-repeat center / contain;
+}
+
 .auth-footer {
     text-align: center;
     font-size: 13px;
@@ -598,9 +604,6 @@ const handleSubmit = async () => {
 </style>
 
 <style>
-/* Эти стили не scoped, поэтому они переопределят переменные 
-  для всего компонента, когда на тег html или body добавится класс или атрибут светлой темы 
-*/
 html[data-theme="light"],
 html[theme="light"],
 body[data-theme="light"],

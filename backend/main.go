@@ -117,6 +117,7 @@ func main() {
 	mux.HandleFunc("GET /me", handlers.Me())
 
 	mux.HandleFunc("GET /messages", handlers.GetHistory(database.DB))
+	mux.HandleFunc("GET /users", handlers.GetUsers(database.DB))
 	mux.HandleFunc("/ws", handlers.HandleWebSocket(database.DB))
 
 	go handlers.BroadcastMessages()
