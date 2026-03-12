@@ -16,6 +16,7 @@ const { isDark: isDarkTheme, toggleTheme } = useTheme();
 
 const newMessage = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
+const chatInputRef = ref<HTMLTextAreaElement | null>(null);
 const ws = ref<WebSocket | null>(null);
 const isConnected = ref(false);
 
@@ -185,18 +186,37 @@ const formatMessage = (text: string) => {
     safeText = safeText.replace(/\\\\t/g, '&#92;t');
     safeText = safeText.replace(/\\\\\*/g, '&#42;');
 
+    safeText = safeText.replace(/^### (.*?)\r?$/gm, '<h3>$1</h3>');
+    safeText = safeText.replace(/^## (.*?)\r?$/gm, '<h2>$1</h2>');
+    safeText = safeText.replace(/^# (.*?)\r?$/gm, '<h1>$1</h1>');
+
+    safeText = safeText.replace(/^> (.*?)\r?$/gm, '<blockquote class="msg-quote">$1</blockquote>');
+
+    safeText = safeText.replace(/^(---+)(.+?)(---+) *\r?$/gm, (match, p1, p2, p3) => {
+        let pctLeft = Math.min(100, p1.length * 10);
+        let pctRight = Math.min(100, p3.length * 10);
+        return `<div class="msg-text-divider" style="--w-left: ${pctLeft}%; --w-right: ${pctRight}%;"><span>${p2.trim()}</span></div>`;
+    });
+
+    safeText = safeText.replace(/^(---+) *\r?$/gm, (match, p1) => {
+        let pct = Math.min(100, p1.length * 10);
+        return `<hr class="msg-divider" style="width: ${pct}%" />`;
+    });
+
     safeText = safeText.replace(/\\n/g, '<br>'); // текстовый \n
     safeText = safeText.replace(/\\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // текстовый \t
 
     safeText = safeText.replace(/\n/g, '<br>');
 
     safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    safeText = safeText.replace(/__(.*?)__/g, '<u>$1</u>'); // Подчеркивание
     safeText = safeText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    safeText = safeText.replace(/~~(.*?)~~/g, '<del>$1</del>');
 
     const urlRegex = /(https?:\/\/[^\s<]+)/g;
     safeText = safeText.replace(urlRegex, (url) => {
         if (url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)) {
-            return `<img src="${url}" class="msg-image" alt="Вложение" loading="lazy" />`;
+            return `<img src="${url}" class="msg-image" alt="$media" loading="lazy" />`;
         }
         return `<a href="${url}" target="_blank" class="msg-link">${url}</a>`;
     });
@@ -264,9 +284,27 @@ const connectWebSocket = () => {
 
 const sendMessage = () => {
     if (!newMessage.value.trim() || !ws.value || !isConnected.value) return;
-    const msgData = { text: newMessage.value.trim() };
+
+    let processedText = newMessage.value.trim();
+
+    processedText = processedText.replace(/(^|[^\\])\\n/g, '$1\n');
+    processedText = processedText.replace(/(^|[^\\])\\t/g, '$1\t');
+
+    processedText = processedText.replace(/\\\\n/g, '\\n');
+    processedText = processedText.replace(/\\\\t/g, '\\t');
+
+    const msgData = { text: processedText };
     ws.value.send(JSON.stringify(msgData));
+
     newMessage.value = '';
+
+    // Сбрасываем высоту поля ввода после отправки
+    nextTick(() => {
+        if (chatInputRef.value) {
+            chatInputRef.value.style.height = 'auto';
+        }
+    });
+
     scrollToBottom();
 };
 
@@ -449,13 +487,14 @@ onUnmounted(() => {
 
                         <div class="input-wrapper">
                             <textarea
-                                v-model="newMessage"
-                                @input="handleInput"
-                                @keydown="handleKeydown"
-                                placeholder="Message #general... (Shift+Enter for new line)"
-                                class="chat-input"
-                                rows="1"
-                                maxlength="2000"
+                            	ref="chatInputRef"
+                            	v-model="newMessage"
+                            	@input="handleInput"
+                            	@keydown="handleKeydown"
+                            	placeholder="Message #general... (Shift+Enter for new line)"
+                            	class="chat-input"
+                            	rows="1"
+                            	maxlength="2000"
                             ></textarea>
                             <button @click="sendMessage" class="send-btn" :disabled="!newMessage.trim() || !isConnected">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
@@ -787,6 +826,58 @@ onUnmounted(() => {
     word-break: break-word;
 }
 
+:deep(h1), :deep(h2), :deep(h3) {
+    margin: 4px 0;
+    line-height: 1.2;
+}
+:deep(.msg-quote) {
+    border-left: 3px solid var(--accent);
+    margin: 4px 0;
+    padding: 4px 10px;
+    color: var(--text-secondary);
+    background-color: rgba(95, 202, 8, 0.05);
+    border-radius: 0 4px 4px 0;
+}
+:deep(.msg-divider) {
+    border: none;
+    border-top: 2px solid var(--text-muted);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+:deep(.msg-text-divider) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 8px 0;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    width: 100%;
+}
+:deep(.msg-text-divider span) {
+    flex-shrink: 0;
+    max-width: calc(100% - 24px);
+    text-align: center;
+    word-break: break-word;
+}
+:deep(.msg-text-divider::before),
+:deep(.msg-text-divider::after) {
+    content: '';
+    height: 2px;
+    background-color: var(--text-muted);
+    border-radius: 2px;
+    flex-basis: 0;
+}
+:deep(.msg-text-divider::before) {
+    flex-grow: var(--grow-left);
+}
+:deep(.msg-text-divider::after) {
+    flex-grow: var(--grow-right);
+}
+
 .app-layout.light-theme .msg-bubble:not(.is-mine) .msg-text {
     color: #1a231e;
 }
@@ -975,6 +1066,9 @@ onUnmounted(() => {
     .app-layout.light-theme .right-sidebar {
         box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     }
+    .sidebar.is-open { transform: translateX(0); }
+    .right-sidebar.is-open { transform: translateX(0); }
+
     .sidebar.is-open { transform: translateX(0); }
     .right-sidebar.is-open { transform: translateX(0); }
 
