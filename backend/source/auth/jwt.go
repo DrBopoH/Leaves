@@ -1,4 +1,7 @@
-// source/auth/jwt.go
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Package auth source/auth/jwt.go
 package auth
 
 import (
@@ -8,15 +11,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-
-
 type Claims struct {
 	UserID   int    `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
-
-
 
 func GenerateToken(userID int, username string, rememberMe bool) (string, time.Time, error) {
 	jwtKey := []byte(os.Getenv("JWT_SECRET_KEY"))
@@ -36,7 +35,7 @@ func GenerateToken(userID int, username string, rememberMe bool) (string, time.T
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
-	
+
 	return tokenString, expirationTime, err
 }
 

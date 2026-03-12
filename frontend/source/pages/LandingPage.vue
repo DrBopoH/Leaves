@@ -1,4 +1,8 @@
-<script setup lang="ts"> // source/pages/LandingPage.vue
+<script setup lang="ts">
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// source/pages/LandingPage.vue
 import { RouterLink } from 'vue-router';
 </script>
 
@@ -23,7 +27,7 @@ import { RouterLink } from 'vue-router';
 				<h3>Lightning Fast</h3>
 				<p>Zero lag and instant message delivery, powered by our custom backend.</p>
 			</div>
-			
+
 			<div class="feature-card">
 				<div class="icon">
 					<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#88ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -31,7 +35,7 @@ import { RouterLink } from 'vue-router';
 				<h3>Secure by Design</h3>
 				<p>Your data belongs to you. Absolute privacy in every single message.</p>
 			</div>
-			
+
 			<div class="feature-card">
 				<div class="icon">
 					<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#88ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
