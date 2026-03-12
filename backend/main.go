@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 
@@ -37,19 +38,32 @@ const defaultInternalPort string = "8080"
 
 const warnEnvNotFound string = "[WW] File .env not found at ./, using default"
 
-var externalApiUrl string
+var allowedOrigins []string
 
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		if origin != externalApiUrl {
-			log.Printf("[DEBUG] CORS mismatch. Request Origin: '%s', Expected: '%s'\n", origin, externalApiUrl)
+		var allowedOrigin string = ""
+		for _, o := range allowedOrigins {
+			if o == origin {
+				allowedOrigin = origin
+				break
+			}
+		}
+
+		if allowedOrigin == "" && origin != "" {
+			log.Printf("[DEBUG] CORS mismatch. Request Origin: '%s', Expected one of: '%v'\n", origin, allowedOrigins)
 			http.Error(w, "Forbidden: Invalid Origin. Only frontend is trusted.", http.StatusForbidden)
 			return
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", externalApiUrl)
+		if allowedOrigin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		} else if len(allowedOrigins) > 0 {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigins[0])
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, ngrok-skip-browser-warning")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -76,9 +90,12 @@ func main() {
 		log.Fatal("[FF] Fatal: JWT_SECRET_KEY is missing or too short in environment variables. Aborting.")
 	}
 
-	externalApiUrl = os.Getenv("EXTERNAL_API_URL")
-	if externalApiUrl == "" {
-		externalApiUrl = defaultExternalApiUrl
+	extUrls := os.Getenv("EXTERNAL_API_URL")
+	if extUrls == "" {
+		extUrls = defaultExternalApiUrl
+	}
+	for _, u := range strings.Split(extUrls, ",") {
+		allowedOrigins = append(allowedOrigins, strings.TrimSpace(u))
 	}
 
 	port := os.Getenv("PORT")
@@ -105,6 +122,6 @@ func main() {
 	go handlers.BroadcastMessages()
 
 	handler := enableCORS(mux)
-	fmt.Printf("[II] Server ready, and listens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, externalApiUrl) // DEBUG PRINT
+	fmt.Printf("[II] Server ready, and listens {\n\t\thttp://localhost:%s,\n\t\t%v,\n}\n\n", port, allowedOrigins) // DEBUG PRINT
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }

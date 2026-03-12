@@ -120,6 +120,7 @@ const connectWebSocket = () => {
             const data = JSON.parse(event.data);
 
             if (data.type === 'typing') {
+                console.log("[WS] Received typing event from:", data.username);
                 handleTypingEvent(data.username);
                 return;
             }
@@ -150,6 +151,7 @@ const handleInput = () => {
     const now = Date.now();
     if (now - lastTypingTime > 2000) {
         if (ws.value && isConnected.value) {
+            console.log("[WS] Sending typing event...");
             ws.value.send(JSON.stringify({ type: 'typing', username: userStore.currentUser?.username }));
         }
         lastTypingTime = now;
