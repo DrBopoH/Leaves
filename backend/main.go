@@ -1,3 +1,21 @@
+/*
+	Leaves - A decentralized hybrid messenger.
+    Copyright (C) 2026 MorangTong Creative Studio
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // main.go
 package main
 
@@ -14,10 +32,10 @@ import (
 	"leaves/source/handlers"
 )
 
-const default_externalApiUrl string = "http://localhost:5173"
-const default_internalPort string = "8080"
+const defaultExternalApiUrl string = "http://localhost:5173"
+const defaultInternalPort string = "8080"
 
-const warn_envNotFound string = "[WW] File .env not found at ./, using default"
+const warnEnvNotFound string = "[WW] File .env not found at ./, using default"
 
 var externalApiUrl string
 
@@ -50,8 +68,8 @@ func main() {
 
 	err = godotenv.Load()
 	if err != nil {
-		fmt.Println(warn_envNotFound) // DEBUG PRINT
-		log.Println(warn_envNotFound) // DEBUG LOG
+		fmt.Println(warnEnvNotFound) // DEBUG PRINT
+		log.Println(warnEnvNotFound) // DEBUG LOG
 	}
 
 	if os.Getenv("JWT_SECRET_KEY") == "" || len(os.Getenv("JWT_SECRET_KEY")) < 16 {
@@ -60,12 +78,12 @@ func main() {
 
 	externalApiUrl = os.Getenv("EXTERNAL_API_URL")
 	if externalApiUrl == "" {
-		externalApiUrl = default_externalApiUrl
+		externalApiUrl = defaultExternalApiUrl
 	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = default_internalPort
+		port = defaultInternalPort
 	}
 
 	err = database.InitDB()
@@ -87,6 +105,6 @@ func main() {
 	go handlers.BroadcastMessages()
 
 	handler := enableCORS(mux)
-	fmt.Printf("[II] Server ready, and lisens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, externalApiUrl) // DEBUG PRINT
+	fmt.Printf("[II] Server ready, and listens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, externalApiUrl) // DEBUG PRINT
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }

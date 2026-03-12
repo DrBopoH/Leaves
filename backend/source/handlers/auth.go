@@ -1,4 +1,7 @@
-// source/handlers/auth.go
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Package handlers source/handlers/auth.go
 package handlers
 
 import (
@@ -6,11 +9,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"fmt"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
-	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -19,7 +22,7 @@ import (
 
 var (
 	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	
+
 	// Simple In-Memory Rate Limiter for Auth endpoints
 	rlMutex sync.Mutex
 	rlMap   = make(map[string]int)
@@ -72,13 +75,13 @@ type User struct {
 func Signup(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		
+
 		if isRateLimited(getIP(r)) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Too many requests. Please try again later."})
 			return
 		}
-		
+
 		var req AuthRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -128,13 +131,13 @@ func Signup(db *sql.DB) http.HandlerFunc {
 func Signin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		
+
 		if isRateLimited(getIP(r)) {
 			w.WriteHeader(http.StatusTooManyRequests)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Too many requests. Please try again later."})
 			return
 		}
-		
+
 		var req AuthRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

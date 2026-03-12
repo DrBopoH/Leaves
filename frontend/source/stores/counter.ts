@@ -1,3 +1,6 @@
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // source/stores/counter.ts
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
