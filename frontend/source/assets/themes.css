@@ -1,37 +1,33 @@
 :root {
-    /* ТВОЯ БАЗОВАЯ ЧЕРНО-НЕОНОВАЯ ТЕМА */
-    --color-bg: #000000; /* Глубокий черный фон */
-    --color-surface: #0a0a0a; /* Почти черные карточки */
-    --color-border: #1a1a1a; /* Темные рамки */
-    --color-text-primary: #ffffff; /* Белоснежный текст заголовков */
+    --color-bg: #050807;
+    --color-surface: #080b0a;
+    --color-border: #0f1714;
+    --color-text-primary: #c8c2b8;
     --color-text-secondary: #8a867f;
-    --color-accent: #39ff14; /* НАСТОЯЩИЙ КИСЛОТНЫЙ НЕОН */
-    --color-accent-shadow: rgba(57, 255, 20, 0.3);
-    --color-accent-hover: rgba(57, 255, 20, 0.6);
+    --color-accent: #5fca08;
+    --color-accent-shadow: rgba(95, 202, 8, 0.3);
+    --color-accent-hover: rgba(95, 202, 8, 0.6);
 }
 
 [data-theme="light"] {
-    /* БЕЛО-НЕОНОВАЯ ТЕМА */
-    --color-bg: #ffffff; /* Чисто белый фон */
-    --color-surface: #f5f5f5; /* Светло-серые карточки для контраста */
-    --color-border: #e0e0e0;
-    --color-text-primary: #000000; /* Черный текст заголовков */
-    --color-text-secondary: #555555;
-    --color-accent: #39ff14; /* Тот же кислотный неон */
-    --color-accent-shadow: rgba(57, 255, 20, 0.3);
-    --color-accent-hover: rgba(57, 255, 20, 0.6);
+    --color-bg: #f4f7f6;
+    --color-surface: #ebf0ee;
+    --color-border: #e2e8e4;
+    --color-text-primary: #080b0a;
+    --color-text-secondary: #4b5563;
+    --color-accent: #4da806;
+    --color-accent-shadow: rgba(77, 168, 6, 0.3);
+    --color-accent-hover: rgba(77, 168, 6, 0.6);
 }
 
-/* Глобальное применение цветов */
 html, body {
-    background-color: var(--color-bg) !important;
-    color: var(--color-text-primary) !important;
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
     margin: 0;
     min-height: 100vh;
 }
 
-/* Сброс дефолтного фона Vite, если он есть на #app */
 #app {
-    background-color: transparent !important;
+    background-color: transparent;
 }

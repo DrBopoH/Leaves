@@ -60,9 +60,18 @@ type ChatMessage struct {
 	Username  string    `json:"username"`
 	Text      string    `json:"text,omitempty"`
 	Timestamp time.Time `json:"timestamp,omitempty"`
+	Online    bool      `json:"online"`
+	LastSeen  time.Time `json:"last_seen,omitempty"`
 }
 
-var clients = make(map[*websocket.Conn]bool)
+type Client struct {
+	Conn     *websocket.Conn
+	UserID   int
+	Username string
+}
+
+var clients = make(map[*Client]bool)
+var activeUsers = make(map[string]int)
 var clientsMutex sync.RWMutex
 var broadcast = make(chan ChatMessage)
 
@@ -87,11 +96,25 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 		}
 		defer ws.Close()
 
+		client := &Client{Conn: ws, UserID: claims.UserID, Username: claims.Username}
+
 		clientsMutex.Lock()
-		clients[ws] = true
+		clients[client] = true
+		activeUsers[claims.Username]++
+		isFirstConnection := activeUsers[claims.Username] == 1
 		clientsMutex.Unlock()
 
 		log.Printf("[II] User '%s' connected to WS", claims.Username)
+
+		if isFirstConnection {
+			db.Exec("UPDATE users SET last_seen = CURRENT_TIMESTAMP WHERE id = ?", claims.UserID)
+			broadcast <- ChatMessage{
+				Type:     "status",
+				Username: claims.Username,
+				Online:   true,
+				LastSeen: time.Now(),
+			}
+		}
 
 		for {
 			var msgPayload struct {
@@ -99,17 +122,28 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 				Text string `json:"text"`
 			}
 
-			err := ws.ReadJSON(&msgPayload)
+			err := client.Conn.ReadJSON(&msgPayload)
 			if err != nil {
 				log.Printf("[II] User '%s' disconnected", claims.Username)
 				clientsMutex.Lock()
-				delete(clients, ws)
+				delete(clients, client)
+				activeUsers[claims.Username]--
+				isLastDisconnection := activeUsers[claims.Username] == 0
 				clientsMutex.Unlock()
+
+				if isLastDisconnection {
+					db.Exec("UPDATE users SET last_seen = CURRENT_TIMESTAMP WHERE id = ?", claims.UserID)
+					broadcast <- ChatMessage{
+						Type:     "status",
+						Username: claims.Username,
+						Online:   false,
+						LastSeen: time.Now(),
+					}
+				}
 				break
 			}
 
 			if msgPayload.Type == "typing" {
-				log.Printf("[DEBUG] User '%s' is typing...", claims.Username)
 				chatMsg := ChatMessage{
 					Type:     "typing",
 					Username: claims.Username,
@@ -117,6 +151,8 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 				broadcast <- chatMsg
 				continue
 			}
+			
+			msgPayload.Type = "message"
 
 			if len(msgPayload.Text) == 0 || len(msgPayload.Text) > 2000 {
 				log.Printf("[WW] User '%s' sent an invalid message length: %d", claims.Username, len(msgPayload.Text))
@@ -132,6 +168,7 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 
 			chatMsg := ChatMessage{
 				ID:        int(msgID),
+				Type:      "message",
 				UserID:    claims.UserID,
 				Username:  claims.Username,
 				Text:      msgPayload.Text,
@@ -148,18 +185,67 @@ func BroadcastMessages() {
 
 		clientsMutex.RLock()
 		for client := range clients {
-			err := client.WriteJSON(msg)
+			err := client.Conn.WriteJSON(msg)
 			if err != nil {
 				log.Printf("[EE] WS Write error: %v", err)
-				client.Close()
-				clientsMutex.RUnlock()
-				clientsMutex.Lock()
-				delete(clients, client)
-				clientsMutex.Unlock()
-				clientsMutex.RLock()
+				client.Conn.Close()
 			}
 		}
 		clientsMutex.RUnlock()
+	}
+}
+
+func GetUsers(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		cookie, err := r.Cookie("auth_token")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		_, err = auth.ParseToken(cookie.Value)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		rows, err := db.Query("SELECT DISTINCT username, last_seen FROM users ORDER BY username ASC")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		clientsMutex.RLock()
+		defer clientsMutex.RUnlock()
+
+		var users []map[string]interface{}
+		for rows.Next() {
+			var username string
+			var lastSeenStr sql.NullString
+			if err := rows.Scan(&username, &lastSeenStr); err == nil {
+				var lastSeen time.Time
+				if lastSeenStr.Valid {
+					lastSeen, _ = time.Parse(time.RFC3339, lastSeenStr.String)
+				}
+				
+				isOnline := activeUsers[username] > 0
+				
+				users = append(users, map[string]interface{}{
+					"username":  username,
+					"online":    isOnline,
+					"last_seen": lastSeen,
+				})
+			}
+		}
+
+		if users == nil {
+			users = []map[string]interface{}{}
+		}
+
+		json.NewEncoder(w).Encode(users)
 	}
 }
 
