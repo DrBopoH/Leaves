@@ -322,6 +322,26 @@ const handleSubmit = async () => {
     box-shadow: 0 0 0 2px rgba(95, 202, 8, 0.1);
 }
 
+/* --- ФИКС ДЛЯ АВТОЗАПОЛНЕНИЯ (PSM) --- */
+.input-box input:-webkit-autofill,
+.input-box input:-webkit-autofill:hover,
+.input-box input:-webkit-autofill:focus,
+.input-box input:-webkit-autofill:active {
+    /* Используем inset тень вместо background-color, чтобы перебить стили браузера */
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-alt, #040605) inset !important;
+    /* Устанавливаем цвет текста, так как обычный color сбрасывается */
+    -webkit-text-fill-color: var(--color-text-primary, #c8c2b8) !important;
+    transition: background-color 5000s ease-in-out 0s; /* Хаковатый фикс для некоторых версий хрома */
+    border: 1px solid var(--color-border, #0f1714);
+}
+
+/* Возвращаем красивую обводку и фон при фокусе даже на автозаполненном поле */
+.input-box input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface, #050807) inset, 0 0 0 2px rgba(95, 202, 8, 0.1) !important;
+    border-color: #5fca08 !important;
+}
+/* -------------------------------------- */
+
 .input-box.has-icon input {
     padding-right: 45px;
 }
