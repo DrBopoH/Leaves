@@ -169,6 +169,7 @@ const scrollToBottom = async () => {
 
 const formatMessage = (text: string) => {
     if (!text) return '';
+
     let safeText = text.replace(/[&<"'>]/g, (m) => {
         switch (m) {
             case '&': return '&';
@@ -179,7 +180,19 @@ const formatMessage = (text: string) => {
             default: return m;
         }
     });
+
+    safeText = safeText.replace(/\\\\n/g, '&#92;n');
+    safeText = safeText.replace(/\\\\t/g, '&#92;t');
+    safeText = safeText.replace(/\\\\\*/g, '&#42;');
+
+    safeText = safeText.replace(/\\n/g, '<br>'); // текстовый \n
+    safeText = safeText.replace(/\\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // текстовый \t
+
     safeText = safeText.replace(/\n/g, '<br>');
+
+    safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    safeText = safeText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
     const urlRegex = /(https?:\/\/[^\s<]+)/g;
     safeText = safeText.replace(urlRegex, (url) => {
         if (url.match(/\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i)) {
@@ -187,6 +200,7 @@ const formatMessage = (text: string) => {
         }
         return `<a href="${url}" target="_blank" class="msg-link">${url}</a>`;
     });
+
     return safeText;
 };
 
