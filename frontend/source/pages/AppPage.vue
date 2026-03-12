@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // source/pages/AppPage.vue
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../stores/user';
 import { fetchChatHistory } from '../api/auth';
@@ -17,6 +17,41 @@ const ws = ref<WebSocket | null>(null);
 const isConnected = ref(false);
 
 const messages = ref<any[]>([]);
+
+const activeTypingUsers = ref<string[]>([]);
+const typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+const typingText = computed(() => {
+    const users = activeTypingUsers.value;
+    const count = users.length;
+    if (count === 0) return '';
+    if (count === 1) return `${users[0]} печатает...`;
+    if (count === 2) return `${users[0]} и ${users[1]} печатают...`;
+    if (count === 3) return `${users[0]}, ${users[1]} и ${users[2]} печатают...`;
+    if (count === 4) return `${users[0]}, ${users[1]}, ${users[2]} и ${users[3]} печатают...`;
+
+    const remaining = count - 3;
+    return `${users[0]}, ${users[1]}, ${users[2]} и ещё ${remaining} человек печатают...`;
+});
+
+const handleTypingEvent = (username: string) => {
+    if (!username || username === userStore.currentUser?.username) return;
+
+    if (!activeTypingUsers.value.includes(username)) {
+        activeTypingUsers.value.push(username);
+    }
+
+    if (typingTimers.has(username)) {
+        clearTimeout(typingTimers.get(username));
+    }
+
+    const timer = setTimeout(() => {
+        activeTypingUsers.value = activeTypingUsers.value.filter(u => u !== username);
+        typingTimers.delete(username);
+    }, 3000);
+
+    typingTimers.set(username, timer);
+};
 
 const isSidebarOpen = ref(window.innerWidth > 768);
 const toggleSidebar = () => {
@@ -83,6 +118,13 @@ const connectWebSocket = () => {
     ws.value.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
+
+            if (data.type === 'typing') {
+                console.log("[WS] Received typing event from:", data.username);
+                handleTypingEvent(data.username);
+                return;
+            }
+
             messages.value.push({
                 id: data.id || Date.now(),
                 user: data.username,
@@ -102,6 +144,18 @@ const sendMessage = () => {
     ws.value.send(JSON.stringify(msgData));
     newMessage.value = '';
     scrollToBottom();
+};
+
+let lastTypingTime = 0;
+const handleInput = () => {
+    const now = Date.now();
+    if (now - lastTypingTime > 2000) {
+        if (ws.value && isConnected.value) {
+            console.log("[WS] Sending typing event...");
+            ws.value.send(JSON.stringify({ type: 'typing', username: userStore.currentUser?.username }));
+        }
+        lastTypingTime = now;
+    }
 };
 
 const handleKeydown = (e: KeyboardEvent) => {
@@ -194,9 +248,17 @@ onUnmounted(() => {
                 </div>
 
                 <div class="chat-input-area">
+                    <div class="typing-indicator" v-show="activeTypingUsers.length > 0">
+                        <span class="typing-dots">
+                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </span>
+                        <span class="typing-text">{{ typingText }}</span>
+                    </div>
+
                     <div class="input-wrapper">
                         <textarea
                             v-model="newMessage"
+                            @input="handleInput"
                             @keydown="handleKeydown"
                             placeholder="Message #general... (Shift+Enter for new line)"
                             class="chat-input"
@@ -342,6 +404,39 @@ onUnmounted(() => {
 .send-btn { background: #5fca08; color: #050807; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; margin-left: 12px; }
 .send-btn:hover:not(:disabled) { background: #4da806; transform: scale(1.05); }
 .send-btn:disabled { background: #1a231e; color: #64615c; cursor: not-allowed; }
+
+.typing-indicator {
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px;
+    margin-bottom: 8px;
+    color: #64615c;
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+}
+.typing-dots {
+    display: flex;
+    gap: 3px;
+}
+.typing-dots .dot {
+    width: 4px;
+    height: 4px;
+    background-color: #64615c;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+}
+.typing-dots .dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots .dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+.typing-text {
+    color: #8a867f;
+}
 
 /* ======== МОБИЛЬНАЯ АДАПТАЦИЯ ======== */
 @media (max-width: 768px) {

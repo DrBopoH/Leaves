@@ -11,6 +11,7 @@ import (
 
 	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -20,7 +21,7 @@ import (
 )
 
 const sendMessageSQL string = `
-INSERT INTO chat (username, email) VALUES (?, ?)
+INSERT INTO messages (user_id, content) VALUES (?, ?)
 `
 const getHistorySQL string = `
 SELECT sub.id, sub.user_id, u.username, sub.content, sub.created_at
@@ -39,20 +40,26 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
-		expectedOrigin := os.Getenv("EXTERNAL_API_URL")
-		if expectedOrigin == "" {
-			expectedOrigin = "http://localhost:5173"
+		expectedOrigins := os.Getenv("EXTERNAL_API_URL")
+		if expectedOrigins == "" {
+			expectedOrigins = "http://localhost:5173"
 		}
-		return origin == expectedOrigin
+		for _, o := range strings.Split(expectedOrigins, ",") {
+			if origin == strings.TrimSpace(o) {
+				return true
+			}
+		}
+		return false
 	},
 }
 
 type ChatMessage struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
+	ID        int       `json:"id,omitempty"`
+	Type      string    `json:"type,omitempty"`
+	UserID    int       `json:"user_id,omitempty"`
 	Username  string    `json:"username"`
-	Text      string    `json:"text"`
-	Timestamp time.Time `json:"timestamp"`
+	Text      string    `json:"text,omitempty"`
+	Timestamp time.Time `json:"timestamp,omitempty"`
 }
 
 var clients = make(map[*websocket.Conn]bool)
@@ -88,6 +95,7 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 
 		for {
 			var msgPayload struct {
+				Type string `json:"type"`
 				Text string `json:"text"`
 			}
 
@@ -98,6 +106,16 @@ func HandleWebSocket(db *sql.DB) http.HandlerFunc {
 				delete(clients, ws)
 				clientsMutex.Unlock()
 				break
+			}
+
+			if msgPayload.Type == "typing" {
+				log.Printf("[DEBUG] User '%s' is typing...", claims.Username)
+				chatMsg := ChatMessage{
+					Type:     "typing",
+					Username: claims.Username,
+				}
+				broadcast <- chatMsg
+				continue
 			}
 
 			if len(msgPayload.Text) == 0 || len(msgPayload.Text) > 2000 {
