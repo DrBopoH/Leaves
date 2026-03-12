@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	username TEXT NOT NULL,
 	email TEXT UNIQUE NOT NULL,
-	password_hash TEXT NOT NULL
+	password_hash TEXT NOT NULL,
+	last_seen DATETIME
 );`
 const messagesTableSQL string = `
 CREATE TABLE IF NOT EXISTS messages (
@@ -68,6 +69,9 @@ func InitDB() error {
 		log.Fatalf("%s%v\n", errorOpenDb, err)
 		return err
 	}
+
+	// Migrate existing database
+	_, _ = DB.Exec("ALTER TABLE users ADD COLUMN last_seen DATETIME")
 	_, err = DB.Exec(messagesTableSQL)
 	if err != nil {
 		fmt.Printf("[WW] SQLite %s DB init table usersTable failed, aborting...\n", path+name)
