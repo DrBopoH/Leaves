@@ -227,7 +227,15 @@ onUnmounted(() => {
 
         <AppHeader />
 
-        <div class="main-content">
+        <div class="maiНа белой теме сайта, иконка гитхаба не выглядит красиво.
+
+Предпологаемое поведение:
+
+При смене темы иконка меняет свои контрастные цвета местами
+
+Реальное поведение:
+
+Иконка заточеная под темную тему остается прежней на белой, становясь не человекочитаемойn-content">
             <div class="sidebar-overlay" :class="{ 'is-open': isSidebarOpen }" @click="toggleSidebar"></div>
             <div class="sidebar-overlay right-overlay" :class="{ 'is-open': isRightSidebarOpen }" @click="toggleRightSidebar"></div>
 
