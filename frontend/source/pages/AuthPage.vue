@@ -59,10 +59,17 @@ const handleSignup = async (payload: any) => {
     <div class="auth-layout">
         <div class="glow-orb top-left"></div>
         <div class="glow-orb bottom-right"></div>
-
+            
+        <AuthHeader />
+            
         <div class="auth-card">
             
-            <AuthHeader :isLogin="isLogin" />
+            <transition name="fade" mode="out-in">
+                <div class="card-headings" :key="isLogin ? 'login-head' : 'reg-head'">
+                    <h2>{{ isLogin ? 'Welcome back!' : 'Get started' }}</h2>
+                    <p>{{ isLogin ? 'Sign in to continue your conversations and stay connected.' : 'Sign up to connect with your communities and start messaging instantly.' }}</p>
+                </div>
+            </transition>
 
             <AuthForm 
                 :isLogin="isLogin" 
@@ -106,8 +113,22 @@ const handleSignup = async (payload: any) => {
 .auth-card {
     background-color: var(--color-surface, #080b0a);
     border: 1px solid var(--color-border, #0f1714);
-    border-radius: 20px; padding: 40px 32px; width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); transition: all 0.3s ease;
+    border-radius: 20px; 
+    padding: 40px 32px; 
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+/* Стили для Welcome back (перенесли сюда из хедера) */
+.card-headings { text-align: center; margin-bottom: 30px; }
+.card-headings h2 {
+    font-size: 20px; font-weight: 600; margin: 0 0 8px 0;
+    color: var(--color-text-primary, #c8c2b8); transition: color 0.3s ease;
+}
+.card-headings p {
+    font-size: 13px; color: var(--color-text-secondary, #8a867f);
+    line-height: 1.5; margin: 0; transition: color 0.3s ease;
 }
 
 .auth-footer { text-align: center; font-size: 13px; color: var(--color-text-secondary, #8a867f); }
