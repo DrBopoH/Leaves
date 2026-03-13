@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { signinUser, signupUser, fetchMe } from '../api/auth';
 import { useUserStore } from '../stores/user';
 
-// Импортируем компоненты
+// 🔌 ИМПОРТИРУЕМ НАШИ КОМПОНЕНТЫ
 import AuthHeader from '../components/AuthHeader.vue';
 import AuthForm from '../components/AuthForm.vue';
 import AuthSocial from '../components/AuthSocial.vue';
@@ -21,6 +21,7 @@ const toggleMode = () => {
     serverMessage.value = '';
 };
 
+// Обработка логина (приходит из AuthForm)
 const handleLogin = async (payload: any) => {
     isLoading.value = true;
     serverMessage.value = '';
@@ -38,6 +39,7 @@ const handleLogin = async (payload: any) => {
     }
 };
 
+// Обработка регистрации (приходит из AuthForm)
 const handleSignup = async (payload: any) => {
     isLoading.value = true;
     serverMessage.value = '';
@@ -57,10 +59,11 @@ const handleSignup = async (payload: any) => {
     <div class="auth-layout">
         <div class="glow-orb top-left"></div>
         <div class="glow-orb bottom-right"></div>
-
+            
         <AuthHeader />
-
+            
         <div class="auth-card">
+            
             <transition name="fade" mode="out-in">
                 <div class="card-headings" :key="isLogin ? 'login-head' : 'reg-head'">
                     <h2>{{ isLogin ? 'Welcome back!' : 'Get started' }}</h2>
@@ -110,10 +113,14 @@ const handleSignup = async (payload: any) => {
 .auth-card {
     background-color: var(--color-surface, #080b0a);
     border: 1px solid var(--color-border, #0f1714);
-    border-radius: 20px; padding: 40px 32px; width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); transition: all 0.3s ease;
+    border-radius: 20px; 
+    padding: 40px 32px; 
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
 }
 
+/* Стили для Welcome back (перенесли сюда из хедера) */
 .card-headings { text-align: center; margin-bottom: 30px; }
 .card-headings h2 {
     font-size: 20px; font-weight: 600; margin: 0 0 8px 0;
@@ -134,4 +141,20 @@ const handleSignup = async (payload: any) => {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .fade-enter-from { opacity: 0; transform: translateY(-5px); }
 .fade-leave-to { opacity: 0; transform: translateY(5px); }
+</style>
+
+<style>
+/* Глобальные стили темы оставляем без scoped */
+html[data-theme="light"],
+html[theme="light"],
+body[data-theme="light"],
+body.light,
+body.light-theme,
+.light-theme {
+    --color-surface: #ffffff !important;
+    --color-surface-alt: #f0f2f5 !important;
+    --color-border: #dcdcdc !important;
+    --color-text-primary: #1a1a1a !important;
+    --color-text-secondary: #666666 !important;
+}
 </style>

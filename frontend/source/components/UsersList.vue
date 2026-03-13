@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // source/components/UsersList.vue
-import { ref, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useUserStore } from '../stores/user';
 
 const props = defineProps<{
@@ -12,22 +12,19 @@ const props = defineProps<{
 
 const userStore = useUserStore();
 
-const visibleUsers = ref<{ username: string; online: boolean; last_seen?: string }[]>([]);
 const usersPage = ref(1);
 const isLoadingUsers = ref(false);
 let loadUsersTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastLoadTime = 0;
 const PAGE_SIZE = 30;
 
-const updateVisibleUsers = () => {
+// Использование computed вместо ref + watch избавляет от рассинхрона 
+// и гарантирует сохранение глубокой реактивности массива.
+const visibleUsers = computed(() => {
     const end = usersPage.value * PAGE_SIZE;
     const start = Math.max(0, end - 90); // Keep max 90 users in DOM
-    visibleUsers.value = props.users.slice(start, end);
-};
-
-watch(() => props.users, () => {
-    updateVisibleUsers();
-}, { deep: true, immediate: true });
+    return props.users.slice(start, end);
+});
 
 const handleUsersScroll = (e: Event) => {
     const target = e.target as HTMLElement;
@@ -43,7 +40,6 @@ const handleUsersScroll = (e: Event) => {
             if (loadUsersTimeout) clearTimeout(loadUsersTimeout);
             loadUsersTimeout = setTimeout(() => {
                 usersPage.value++;
-                updateVisibleUsers();
                 isLoadingUsers.value = false;
                 lastLoadTime = Date.now();
             }, delay);
@@ -52,9 +48,11 @@ const handleUsersScroll = (e: Event) => {
 
     if (target.scrollTop <= 10 && usersPage.value > 3) {
         usersPage.value--;
-        updateVisibleUsers();
         target.scrollTop = 50;
     }
+};
+const isUserOnline = (u: { username: string; online: boolean }) => {
+    return u.online || u.username === (userStore as any).user?.username;
 };
 
 const formatRelativeTime = (isoString: string | undefined) => {
@@ -83,8 +81,8 @@ const formatRelativeTime = (isoString: string | undefined) => {
                     {{ u.username }}
                 </span>
                 <div class="status-indicator">
-                    <span class="status-dot" :class="{ online: u.online }"></span>
-                    <span class="status-text">{{ u.online ? 'Online' : formatRelativeTime(u.last_seen) }}</span>
+                    <span class="status-dot" :class="{ online: isUserOnline(u) }"></span>
+                    <span class="status-text">{{ isUserOnline(u) ? 'Online' : formatRelativeTime(u.last_seen) }}</span>
                 </div>
             </div>
         </div>
