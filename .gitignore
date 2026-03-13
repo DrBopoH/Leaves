@@ -5,12 +5,12 @@
 *.txt
 
 *.sqlite
-*.sqlite
 *.db
 *.db-journal
 
 .eslintcache
 
+qdrant_storage/
 node_modules/
 dist/
 bin/
@@ -19,6 +19,8 @@ bin/
 .idea/
 
 .vscode/
+.roo/
+.rooignore
 
 *.sublime-project
 *.sublime-workspace

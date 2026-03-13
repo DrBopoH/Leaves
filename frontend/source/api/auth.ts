@@ -1,8 +1,11 @@
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // source/api/auth.ts
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 export interface AuthPayload {
-    username?: string; 
+    username?: string;
     email: string;
     password: string;
     rememberMe?: boolean;
@@ -37,9 +40,9 @@ export const signinUser = async (data: AuthPayload) => {
     });
 
     if (!response.ok) {
-        throw new Error('Invalid email or password'); 
+        throw new Error('Invalid email or password');
     }
-    return response.json(); 
+    return response.json();
 };
 
 export const fetchMe = async () => {
@@ -50,7 +53,7 @@ export const fetchMe = async () => {
     });
 
     if (!response.ok) return null;
-    
+
     const data = await response.json();
     return data.user;
 };
@@ -63,5 +66,16 @@ export const fetchChatHistory = async () => {
     });
 
     if (!response.ok) throw new Error('Failed to fetch history');
+    return response.json();
+};
+
+export const fetchUsers = async () => {
+    const response = await fetch(`${BASE_URL}/users`, {
+        method: 'GET',
+        headers: defaultHeaders,
+        credentials: 'include',
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch users');
     return response.json();
 };

@@ -1,19 +1,58 @@
-// source/handlers/auth.go
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Package handlers source/handlers/auth.go
 package handlers
 
 import (
-	"net/http"
 	"database/sql"
 	"encoding/json"
-	
+	"net/http"
+
 	"fmt"
-	
+	"regexp"
+	"strings"
+	"sync"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
-	
+
 	"leaves/source/auth"
 )
 
+var (
+	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
 
+	// Simple In-Memory Rate Limiter for Auth endpoints
+	rlMutex sync.Mutex
+	rlMap   = make(map[string]int)
+	rlLast  = time.Now()
+)
+
+func isRateLimited(ip string) bool {
+	rlMutex.Lock()
+	defer rlMutex.Unlock()
+
+	// Reset limits every minute
+	if time.Since(rlLast) > time.Minute {
+		rlMap = make(map[string]int)
+		rlLast = time.Now()
+	}
+
+	rlMap[ip]++
+	if rlMap[ip] > 10 { // Max 10 attempts per minute per IP
+		return true
+	}
+	return false
+}
+
+func getIP(r *http.Request) string {
+	ip := r.Header.Get("X-Forwarded-For")
+	if ip == "" {
+		ip = r.RemoteAddr
+	}
+	return ip
+}
 
 type AuthRequest struct {
 	Username   string `json:"username,omitempty"`
@@ -33,16 +72,40 @@ type User struct {
 	PasswordHash string
 }
 
-
-
 func Signup(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+
+		if isRateLimited(getIP(r)) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Too many requests. Please try again later."})
+			return
+		}
+
 		var req AuthRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid request format"})
+			return
+		}
+
+		req.Email = strings.TrimSpace(req.Email)
+		req.Username = strings.TrimSpace(req.Username)
+
+		if len(req.Password) < 8 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Password must be at least 8 characters"})
+			return
+		}
+		if len(req.Username) < 3 || len(req.Username) > 30 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Username must be between 3 and 30 characters"})
+			return
+		}
+		if !emailRegex.MatchString(strings.ToLower(req.Email)) || len(req.Email) > 254 {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid email format"})
 			return
 		}
 
@@ -59,7 +122,7 @@ func Signup(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("\n[II] Sign up request successfully by \"%s (%s)\" user\n", req.Username, req.Email)		// DEBUG PRINT
+		fmt.Printf("\n[II] Sign up request successfully by \"%s (%s)\" user\n", req.Username, req.Email) // DEBUG PRINT
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(AuthResponse{Status: "success", Message: "Account created successfully!"})
 	}
@@ -68,6 +131,13 @@ func Signup(db *sql.DB) http.HandlerFunc {
 func Signin(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+
+		if isRateLimited(getIP(r)) {
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Too many requests. Please try again later."})
+			return
+		}
+
 		var req AuthRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -110,18 +180,16 @@ func Signin(db *sql.DB) http.HandlerFunc {
 		cookieString := cookie.String() + "; Partitioned"
 		w.Header().Add("Set-Cookie", cookieString)
 
-		fmt.Printf("\n[II] Sign in request successfully by \"%s\" user.\n", user.Username)		// DEBUG PRINT
+		fmt.Printf("\n[II] Sign in request successfully by \"%s\" user.\n", user.Username) // DEBUG PRINT
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(AuthResponse{Status: "success", Message: "Successfully signed in!"})
 	}
 }
 
-
-
 func Me() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		
+
 		cookie, err := r.Cookie("auth_token")
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -139,7 +207,7 @@ func Me() http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]any{
 			"status": "success",
 			"user": map[string]any{
-				"id": claims.UserID,
+				"id":       claims.UserID,
 				"username": claims.Username,
 			},
 		})

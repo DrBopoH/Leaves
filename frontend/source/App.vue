@@ -1,4 +1,8 @@
-<script setup lang="ts"> // source/App.vue
+<script setup lang="ts">
+// Copyright (C) 2026 MorangTong Creative Studio
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// source/App.vue
 import { onMounted } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
 import { fetchMe } from './api/auth';
@@ -59,9 +63,10 @@ onMounted(async () => {
 }
 
 body {
-    background-color: #050807;
-    color: #c8c2b8;
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 </style>
 
@@ -74,9 +79,14 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 3rem;
-    background: rgba(5, 8, 7, 0.8);
+    background: var(--color-surface);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid #0f1714;
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="light"] .navbar {
+    background: rgba(235, 240, 238, 0.7);
 }
 
 .logo a {
@@ -85,9 +95,10 @@ body {
     gap: 10px;
     font-size: 1.4rem;
     font-weight: 700;
-    color: #c8c2b8;
+    color: var(--color-text-primary);
     text-decoration: none;
     letter-spacing: -0.5px;
+    transition: color 0.3s ease;
 }
 
 .logo-icon {
@@ -117,12 +128,13 @@ body {
 
 .nav-btn-outline {
     background-color: transparent;
-    border: 1px solid #0f1714;
-    color: #c8c2b8;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    transition: all 0.3s ease;
 }
 
 .nav-btn-outline:hover {
-    background-color: #0f1714;
+    background-color: var(--color-border);
     border-color: #5fca08;
 }
 
@@ -145,19 +157,20 @@ body {
 }
 
 .user-profile:hover {
-    background: #0f1714;
+    background: var(--color-border);
 }
 
 .username {
     font-weight: 500;
     font-size: 0.95rem;
-    color: #c8c2b8;
+    color: var(--color-text-primary);
+    transition: color 0.3s ease;
 }
 
 .avatar {
     width: 36px;
     height: 36px;
-    background-color: #0f1714;
+    background-color: var(--color-border);
     color: #5fca08;
     border-radius: 50%;
     display: flex;
@@ -165,6 +178,7 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 1.1rem;
-    border: 2px solid #080b0a;
+    border: 2px solid var(--color-surface);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 </style>
