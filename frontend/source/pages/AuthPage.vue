@@ -1,120 +1,131 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { signinUser, signupUser, fetchMe } from '../api/auth';
-import { useUserStore } from '../stores/user';
+	// Copyright (C) 2026 MorangTong Creative Studio
+	// SPDX-License-Identifier: AGPL-3.0-or-later
 
-// 🔌 ИМПОРТИРУЕМ НАШИ КОМПОНЕНТЫ
-import AuthHeader from '../components/AuthHeader.vue';
-import AuthForm from '../components/AuthForm.vue';
-import AuthSocial from '../components/AuthSocial.vue';
+	// source/pages/AuthPage.vue
+	import { ref } from 'vue';
+	import { useRouter } from 'vue-router';
+	import { useUserStore } from '../stores/user';
+	import { signinUser, signupUser, fetchMe } from '../api/auth';
 
-const router = useRouter();
-const userStore = useUserStore();
+	import AuthHeader from '../components/AuthHeader.vue';
+	import AuthForm from '../components/AuthForm.vue';
+	import AuthSocial from '../components/AuthSocial.vue';
+	import UiGlowBackground from '../components/ui-kit/UiGlowBackground.vue';
 
-const isLogin = ref(true);
-const serverMessage = ref('');
-const isLoading = ref(false);
+	const router = useRouter();
+	const userStore = useUserStore();
 
-const toggleMode = () => {
-    isLogin.value = !isLogin.value;
-    serverMessage.value = '';
-};
+	const isLogin = ref(true);
+	const serverMessage = ref('');
+	const isLoading = ref(false);
 
-// Обработка логина (приходит из AuthForm)
-const handleLogin = async (payload: any) => {
-    isLoading.value = true;
-    serverMessage.value = '';
-    try {
-        const result = await signinUser(payload);
-        serverMessage.value = result.message;
+	const toggleMode = () => {
+	    isLogin.value = !isLogin.value;
+	    serverMessage.value = '';
+	};
 
-        const user = await fetchMe();
-        if (user) userStore.setUser(user);
-        router.push('/app');
-    } catch (error: any) {
-        serverMessage.value = error.message || 'Internal server error';
-    } finally {
-        isLoading.value = false;
-    }
-};
+	const handleLogin = async (payload: any) => {
+		isLoading.value = true;
+		serverMessage.value = '';
 
-// Обработка регистрации (приходит из AuthForm)
-const handleSignup = async (payload: any) => {
-    isLoading.value = true;
-    serverMessage.value = '';
-    try {
-        const result = await signupUser(payload);
-        serverMessage.value = result.message;
-        setTimeout(() => { isLogin.value = true; }, 1500);
-    } catch (error: any) {
-        serverMessage.value = error.message || 'Internal server error';
-    } finally {
-        isLoading.value = false;
-    }
-};
+		try {
+			const result = await signinUser(payload);
+			serverMessage.value = result.message;
+
+			const user = await fetchMe();
+			if (user) userStore.setUser(user);
+			router.push('/app');
+		} catch (error: any) {
+			serverMessage.value = error.message || 'An unexpected error occurred during login.';
+		} finally {
+			isLoading.value = false;
+		}
+	};
+
+	const handleSignup = async (payload: any) => {
+		isLoading.value = true;
+		serverMessage.value = '';
+
+		try {
+			const result = await signupUser(payload);
+			serverMessage.value = result.message;
+			setTimeout(() => { isLogin.value = true; }, 1500);
+		} catch (error: any) {
+			serverMessage.value = error.message || 'An unexpected error occurred during registration.';
+		} finally {
+			isLoading.value = false;
+		}
+	};
 </script>
 
 <template>
-    <div class="auth-layout">
-        <div class="glow-orb top-left"></div>
-        <div class="glow-orb bottom-right"></div>
-            
-        <AuthHeader />
-            
-        <div class="auth-card">
-            
-            <transition name="fade" mode="out-in">
-                <div class="card-headings" :key="isLogin ? 'login-head' : 'reg-head'">
-                    <h2>{{ isLogin ? 'Welcome back!' : 'Get started' }}</h2>
-                    <p>{{ isLogin ? 'Sign in to continue your conversations and stay connected.' : 'Sign up to connect with your communities and start messaging instantly.' }}</p>
-                </div>
-            </transition>
+    <div class="auth-page">
+        <UiGlowBackground />
 
-            <AuthForm 
-                :isLogin="isLogin" 
-                :isLoading="isLoading" 
-                :serverMessage="serverMessage"
-                @submitLogin="handleLogin"
-                @submitSignup="handleSignup"
-                @clearError="serverMessage = ''"
-            />
+        <div class="auth-layout">
+            <AuthHeader />
 
-            <AuthSocial />
+            <div class="auth-card">
 
-            <transition name="fade" mode="out-in">
-                <div class="auth-footer" :key="isLogin ? 'login-foot' : 'reg-foot'">
-                    <span v-if="isLogin">
-                        Don't have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign up</a>
-                    </span>
-                    <span v-else>
-                        Already have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign in</a>
-                    </span>
-                </div>
-            </transition>
+				<transition name="fade" mode="out-in">
+					<div class="card-headings" :key="isLogin ? 'login-head' : 'reg-head'">
+						<h2>{{ isLogin ? 'Welcome back!' : 'Get started' }}</h2>
+						<p>{{ isLogin ? 'Sign in to continue your conversations and stay connected.' : 'Sign up to connect with your communities and start messaging instantly.' }}</p>
+					</div>
+				</transition>
+
+				<AuthForm
+					:isLogin="isLogin"
+					:isLoading="isLoading"
+					:serverMessage="serverMessage"
+					@submitLogin="handleLogin"
+					@submitSignup="handleSignup"
+					@clearError="serverMessage = ''"
+				/>
+
+				<AuthSocial />
+
+				<transition name="fade" mode="out-in">
+					<div class="auth-footer" :key="isLogin ? 'login-foot' : 'reg-foot'">
+						<span v-if="isLogin">
+							Don't have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign up</a>
+						</span>
+						<span v-else>
+							Already have an account? <a href="#" class="leaf-link" @click.prevent="toggleMode">Sign in</a>
+						</span>
+					</div>
+				</transition>
+			</div>
         </div>
     </div>
 </template>
 
 <style scoped>
+.auth-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .auth-layout {
-    position: relative; display: flex; flex-direction: column;
-    align-items: center; justify-content: flex-start;
+    position: relative;
+    z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
     width: 100%; max-width: 440px; margin: 0 auto; padding: 40px 20px;
 }
-.glow-orb {
-    position: absolute; width: 400px; height: 400px;
-    background: radial-gradient(circle, #0f1714 0%, transparent 70%);
-    border-radius: 50%; z-index: -1; pointer-events: none;
-}
-.top-left { top: -100px; left: -150px; }
-.bottom-right { bottom: -100px; right: -150px; }
 
 .auth-card {
-    background-color: var(--color-surface, #080b0a);
-    border: 1px solid var(--color-border, #0f1714);
-    border-radius: 20px; 
-    padding: 40px 32px; 
+    position: relative;
+    z-index: 1;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 40px 32px;
     width: 100%;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
@@ -141,20 +152,4 @@ const handleSignup = async (payload: any) => {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .fade-enter-from { opacity: 0; transform: translateY(-5px); }
 .fade-leave-to { opacity: 0; transform: translateY(5px); }
-</style>
-
-<style>
-/* Глобальные стили темы оставляем без scoped */
-html[data-theme="light"],
-html[theme="light"],
-body[data-theme="light"],
-body.light,
-body.light-theme,
-.light-theme {
-    --color-surface: #ffffff !important;
-    --color-surface-alt: #f0f2f5 !important;
-    --color-border: #dcdcdc !important;
-    --color-text-primary: #1a1a1a !important;
-    --color-text-secondary: #666666 !important;
-}
 </style>

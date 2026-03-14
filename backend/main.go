@@ -20,6 +20,7 @@
 package main
 
 import (
+	"slices"
 	"net/http"
 
 	"fmt"
@@ -45,11 +46,8 @@ func enableCORS(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 
 		var allowedOrigin string = ""
-		for _, o := range allowedOrigins {
-			if o == origin {
-				allowedOrigin = origin
-				break
-			}
+		if slices.Contains(allowedOrigins, origin) {
+			allowedOrigin = origin
 		}
 
 		if allowedOrigin == "" && origin != "" {
@@ -111,13 +109,19 @@ func main() {
 	defer database.DB.Close()
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("POST /signup", handlers.Signup(database.DB))
 	mux.HandleFunc("POST /signin", handlers.Signin(database.DB))
 
-	mux.HandleFunc("GET /me", handlers.Me())
-
 	mux.HandleFunc("GET /messages", handlers.GetHistory(database.DB))
 	mux.HandleFunc("GET /users", handlers.GetUsers(database.DB))
+	mux.HandleFunc("GET /me", handlers.Me())
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"alive","service":"Leaves"}`))
+	})
+
 	mux.HandleFunc("/ws", handlers.HandleWebSocket(database.DB))
 
 	go handlers.BroadcastMessages()

@@ -3,182 +3,46 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // source/App.vue
-import { onMounted } from 'vue';
-import { RouterLink, RouterView, useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { RouterView } from 'vue-router';
 import { fetchMe } from './api/auth';
 import { useUserStore } from './stores/user';
+import { useTheme } from './composables/useTheme';
+import UiLoader from './components/ui-kit/UiLoader.vue';
 
-const route = useRoute();
+useTheme();
+
 const userStore = useUserStore();
+const isAuthReady = ref(false);
 
 onMounted(async () => {
-    try {
-        const user = await fetchMe();
-        if (user) {
-            userStore.setUser(user);
-        }
-    } catch (error) {
-        console.error("Failed to fetch user session", error);
-    }
+	try {
+		const user = await fetchMe();
+		if (user) {
+			userStore.setUser(user);
+		}
+	} catch (error) {
+		console.error("Failed to fetch user session", error);
+	} finally {
+		isAuthReady.value = true;
+	}
 });
 </script>
 
 <template>
-    <header class="navbar" v-if="route.path !== '/auth' && route.path !== '/app'">
-        <div class="logo">
-            <RouterLink to="/">
-                <img src="/Logo.svg" alt="Leaves Logo" class="logo-icon" /> Leaves
-            </RouterLink>
-        </div>
-        <nav class="nav-links">
-            <template v-if="!userStore.currentUser">
-                <RouterLink to="/auth" class="nav-btn nav-btn-outline">Sign in</RouterLink>
-            </template>
-            <RouterLink to="/app" v-else class="user-profile" style="text-decoration: none;">
-                <span class="username" :style="{ color: userStore.getUserColor(userStore.currentUser.username) }">
-                    {{ userStore.currentUser.username }}
-                </span>
-
-                <div class="avatar" :style="{
-                    borderColor: userStore.getUserColor(userStore.currentUser.username),
-                    color: userStore.getUserColor(userStore.currentUser.username)
-                }">
-                    {{ userStore.currentUser.username.charAt(0).toUpperCase() }}
-                </div>
-            </RouterLink>
-        </nav>
-    </header>
-
-    <main :class="['content-wrapper', { 'chat-mode': route.path === '/app' }]">
-        <RouterView />
-    </main>
+	<div v-if="!isAuthReady" class="app-loader-screen">
+		<UiLoader size="large" color="var(--color-accent)" />
+	</div>
+	<RouterView v-else />
 </template>
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background-color: var(--color-bg);
-    color: var(--color-text-primary);
-    overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-</style>
-
 <style scoped>
-.navbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 3rem;
-    background: var(--color-surface);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--color-border);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-[data-theme="light"] .navbar {
-    background: rgba(235, 240, 238, 0.7);
-}
-
-.logo a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    text-decoration: none;
-    letter-spacing: -0.5px;
-    transition: color 0.3s ease;
-}
-
-.logo-icon {
-    width: 28px;
-    height: 28px;
-}
-
-.nav-links {
-    display: flex;
-    gap: 15px;
-}
-
-.nav-btn {
-    text-decoration: none;
-    color: #050807;
-    background-color: #5fca08;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.nav-btn:hover {
-    background-color: #4da806;
-}
-
-.nav-btn-outline {
-    background-color: transparent;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    transition: all 0.3s ease;
-}
-
-.nav-btn-outline:hover {
-    background-color: var(--color-border);
-    border-color: #5fca08;
-}
-
-.content-wrapper {
-    display: flex; justify-content: center; align-items: center;
-    padding: 20px; min-height: 100vh;
-}
-.content-wrapper.chat-mode {
-    padding: 0; display: block; height: 100vh;
-}
-
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 30px;
-    transition: background 0.2s;
-}
-
-.user-profile:hover {
-    background: var(--color-border);
-}
-
-.username {
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: var(--color-text-primary);
-    transition: color 0.3s ease;
-}
-
-.avatar {
-    width: 36px;
-    height: 36px;
-    background-color: var(--color-border);
-    color: #5fca08;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.1rem;
-    border: 2px solid var(--color-surface);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+.app-loader-screen {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	width: 100%;
+	background-color: var(--color-bg);
 }
 </style>
