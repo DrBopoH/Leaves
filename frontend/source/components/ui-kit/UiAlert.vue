@@ -1,14 +1,14 @@
 <script setup lang="ts">
-// Copyright (C) 2026 MorangTong Creative Studio
-// SPDX-License-Identifier: AGPL-3.0-or-later
+	// Copyright (C) 2026 MorangTong Creative Studio
+	// SPDX-License-Identifier: AGPL-3.0-or-later
 
-// source/components/ui-kit/UiAlert.vue
+	// source/components/ui-kit/UiAlert.vue
 
-const props = defineProps<{
-	type?: 'error' | 'success' | 'warning' | 'info';
-	message?: string;
-	show?: boolean;
-}>();
+	const props = defineProps<{
+		type?: 'error' | 'success' | 'warning' | 'info';
+		message?: string;
+		show?: boolean;
+	}>();
 </script>
 
 <template>
