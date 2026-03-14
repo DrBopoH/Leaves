@@ -1,12 +1,32 @@
+/*
+	Leaves - A decentralized hybrid messenger.
+    Copyright (C) 2026 MorangTong Creative Studio
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // main.go
 package main
 
 import (
+	"slices"
 	"net/http"
 
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 
@@ -14,24 +34,34 @@ import (
 	"leaves/source/handlers"
 )
 
-const default_externalApiUrl string = "http://localhost:5173"
-const default_internalPort string = "8080"
+const defaultExternalApiUrl string = "http://localhost:5173"
+const defaultInternalPort string = "8080"
 
-const warn_envNotFound string = "[WW] File .env not found at ./, using default"
+const warnEnvNotFound string = "[WW] File .env not found at ./, using default"
 
-var externalApiUrl string
+var allowedOrigins []string
 
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		if origin != externalApiUrl {
-			log.Printf("[DEBUG] CORS mismatch. Request Origin: '%s', Expected: '%s'\n", origin, externalApiUrl)
+		var allowedOrigin string = ""
+		if slices.Contains(allowedOrigins, origin) {
+			allowedOrigin = origin
+		}
+
+		if allowedOrigin == "" && origin != "" {
+			log.Printf("[DEBUG] CORS mismatch. Request Origin: '%s', Expected one of: '%v'\n", origin, allowedOrigins)
 			http.Error(w, "Forbidden: Invalid Origin. Only frontend is trusted.", http.StatusForbidden)
 			return
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", externalApiUrl)
+		if allowedOrigin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		} else if len(allowedOrigins) > 0 {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigins[0])
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, ngrok-skip-browser-warning")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -50,22 +80,25 @@ func main() {
 
 	err = godotenv.Load()
 	if err != nil {
-		fmt.Println(warn_envNotFound) // DEBUG PRINT
-		log.Println(warn_envNotFound) // DEBUG LOG
+		fmt.Println(warnEnvNotFound) // DEBUG PRINT
+		log.Println(warnEnvNotFound) // DEBUG LOG
 	}
 
 	if os.Getenv("JWT_SECRET_KEY") == "" || len(os.Getenv("JWT_SECRET_KEY")) < 16 {
 		log.Fatal("[FF] Fatal: JWT_SECRET_KEY is missing or too short in environment variables. Aborting.")
 	}
 
-	externalApiUrl = os.Getenv("EXTERNAL_API_URL")
-	if externalApiUrl == "" {
-		externalApiUrl = default_externalApiUrl
+	extUrls := os.Getenv("EXTERNAL_API_URL")
+	if extUrls == "" {
+		extUrls = defaultExternalApiUrl
+	}
+	for _, u := range strings.Split(extUrls, ",") {
+		allowedOrigins = append(allowedOrigins, strings.TrimSpace(u))
 	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = default_internalPort
+		port = defaultInternalPort
 	}
 
 	err = database.InitDB()
@@ -76,17 +109,24 @@ func main() {
 	defer database.DB.Close()
 
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("POST /signup", handlers.Signup(database.DB))
 	mux.HandleFunc("POST /signin", handlers.Signin(database.DB))
 
-	mux.HandleFunc("GET /me", handlers.Me())
-
 	mux.HandleFunc("GET /messages", handlers.GetHistory(database.DB))
+	mux.HandleFunc("GET /users", handlers.GetUsers(database.DB))
+	mux.HandleFunc("GET /me", handlers.Me())
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"alive","service":"Leaves"}`))
+	})
+
 	mux.HandleFunc("/ws", handlers.HandleWebSocket(database.DB))
 
 	go handlers.BroadcastMessages()
 
 	handler := enableCORS(mux)
-	fmt.Printf("[II] Server ready, and lisens {\n\t\thttp://localhost:%s,\n\t\t%s,\n}\n\n", port, externalApiUrl) // DEBUG PRINT
+	fmt.Printf("[II] Server ready, and listens {\n\t\thttp://localhost:%s,\n\t\t%v,\n}\n\n", port, allowedOrigins) // DEBUG PRINT
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
