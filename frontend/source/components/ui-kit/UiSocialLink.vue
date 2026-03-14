@@ -6,6 +6,9 @@
 
 const props = defineProps<{
 	href?: string;
+	iconSrc?: string;
+	iconAlt?: string;
+	steam?: boolean;
 }>();
 </script>
 
@@ -15,6 +18,8 @@ const props = defineProps<{
 		:href="href"
 		class="ui-social-link"
 	>
+		<img v-if="!steam && iconSrc" :src="iconSrc" class="ui-social-icon" :alt="iconAlt" />
+		<div v-else-if="steam" class="ui-social-icon ui-social-steam" title="Steam"></div>
 		<slot></slot>
 	</component>
 </template>
@@ -46,6 +51,18 @@ const props = defineProps<{
 
 .ui-social-link:active {
 	transform: translateY(0);
+}
+
+.ui-social-icon {
+	width: 20px;
+	height: 20px;
+	object-fit: contain;
+}
+
+.ui-social-steam {
+	background: linear-gradient(to top, #00adee, #171a21);
+	-webkit-mask: url('https://api.iconify.design/mdi:steam.svg') no-repeat center / contain;
+	mask: url('https://api.iconify.design/mdi:steam.svg') no-repeat center / contain;
 }
 
 /* Base style for icons passed into the slot */
