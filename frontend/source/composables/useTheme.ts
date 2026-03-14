@@ -1,27 +1,25 @@
 // source/composables/useTheme.ts
 import { ref, watch, computed } from 'vue';
 
-type Theme = 'black' | 'light';
+type Theme = 'dark' | 'light';
 
-const currentTheme = ref<Theme>((localStorage.getItem('theme') as Theme) || 'black');
+const currentTheme = ref<Theme>((localStorage.getItem('theme') as Theme) || 'dark');
 
 export function useTheme() {
-    // Вычисляемое свойство: является ли текущая тема черной
-    const isDark = computed(() => currentTheme.value === 'black');
+    const isDark = computed(() => currentTheme.value === 'dark');
 
-    // Функция переключения темы
     const toggleTheme = () => {
-        currentTheme.value = isDark.value ? 'light' : 'black';
+        currentTheme.value = isDark.value ? 'light' : 'dark';
     };
 
     watch(currentTheme, (newTheme) => {
-        if (newTheme === 'black') {
+        if (newTheme === 'dark') {
             document.documentElement.removeAttribute('data-theme');
         } else {
             document.documentElement.setAttribute('data-theme', newTheme);
         }
         localStorage.setItem('theme', newTheme);
-    }, { immediate: true }); 
+    }, { immediate: true });
 
     return {
         isDark,
