@@ -6,12 +6,18 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../stores/user';
-import { fetchChatHistory, fetchUsers } from '../api/auth';
+import { fetchChatHistory, fetchUsers } from '../api/chat';
 import { useTheme } from '../composables/useTheme';
 import ChatMessage from '../components/ChatMessage.vue';
 import UsersList from '../components/UsersList.vue';
 import AppHeader from '../components/AppHeader.vue';
 import ChatInput from '../components/ChatInput.vue';
+import UiSidebar from '../components/ui-kit/UiSidebar.vue';
+import UiOverlay from '../components/ui-kit/UiOverlay.vue';
+import UiMenuLink from '../components/ui-kit/UiMenuLink.vue';
+import UiButton from '../components/ui-kit/UiButton.vue';
+import UiIconButton from '../components/ui-kit/UiIconButton.vue';
+import UiUserItem from '../components/ui-kit/UiUserItem.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -228,69 +234,72 @@ onUnmounted(() => {
         <AppHeader />
 
         <div class="main-content">
-            <div class="sidebar-overlay" :class="{ 'is-open': isSidebarOpen }" @click="toggleSidebar"></div>
-            <div class="sidebar-overlay right-overlay" :class="{ 'is-open': isRightSidebarOpen }" @click="toggleRightSidebar"></div>
+            <UiOverlay :show="isSidebarOpen" @click="toggleSidebar" class="mobile-only" />
+            <UiOverlay :show="isRightSidebarOpen" @click="toggleRightSidebar" class="mobile-only right-overlay" />
 
-            <div class="sidebar" :class="{ 'is-open': isSidebarOpen }">
+            <UiSidebar position="left" :isOpen="isSidebarOpen" class="app-sidebar">
                 <div class="channels">
-                    <div v-for="chan in channels" :key="chan"
-                         class="channel"
-                         :class="{ active: activeChannel === chan }"
-                         @click="selectChannel(chan)"
-                         @dblclick="handleChannelDblClick(chan)">
-                         # {{ chan }}
-                    </div>
+                    <UiMenuLink
+                        v-for="chan in channels"
+                        :key="chan"
+                        :active="activeChannel === chan"
+                        @click="selectChannel(chan)"
+                        @dblclick="handleChannelDblClick(chan)"
+                    >
+                        <template #icon>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="4" y1="9" x2="20" y2="9"></line>
+                                <line x1="4" y1="15" x2="20" y2="15"></line>
+                                <line x1="10" y1="3" x2="8" y2="21"></line>
+                                <line x1="16" y1="3" x2="14" y2="21"></line>
+                            </svg>
+                        </template>
+                        {{ chan }}
+                    </UiMenuLink>
                 </div>
 
-                <div class="sidebar-footer">
-                    <div class="user-profile">
-                        <div class="avatar" :style="{
-                            borderColor: userStore.getUserColor(userStore.currentUser?.username || ''),
-                            color: userStore.getUserColor(userStore.currentUser?.username || '')
-                        }">
-                            {{ userStore.currentUser?.username.charAt(0).toUpperCase() }}
-                        </div>
-                        <div class="user-info">
-                            <span class="username" :style="{ color: userStore.getUserColor(userStore.currentUser?.username || '') }">
-                                {{ userStore.currentUser?.username }}
-                            </span>
-                            <div class="status-indicator">
-                                <span class="status-dot" :class="{ online: isConnected }"></span>
-                                <transition name="fade-status">
-                                    <span class="status-text" v-if="showStatusText">{{ isConnected ? 'Connected' : 'Reconnecting...' }}</span>
-                                </transition>
-                            </div>
-                        </div>
+                <template #footer>
+                    <div class="sidebar-profile-wrap">
+                        <UiUserItem
+                            v-if="userStore.currentUser"
+                            :username="userStore.currentUser.username"
+                            :color="userStore.getUserColor(userStore.currentUser.username)"
+                            :status="isConnected ? 'online' : 'offline'"
+                            :subtitle="showStatusText ? (isConnected ? 'Connected' : 'Reconnecting...') : ''"
+                            class="app-user-profile"
+                        />
                     </div>
-                </div>
-            </div>
+                </template>
+            </UiSidebar>
 
             <div class="chat-container">
                 <div class="chat-inner-header">
                     <div class="header-left">
-                        <button class="channel-toggle-btn" @click="toggleSidebar">
-                            <div class="channel-hash">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <UiButton variant="ghost" @click="toggleSidebar" class="channel-toggle-btn">
+                            <template #prepend>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="channel-hash">
                                     <line x1="4" y1="9" x2="20" y2="9"></line>
                                     <line x1="4" y1="15" x2="20" y2="15"></line>
                                     <line x1="10" y1="3" x2="8" y2="21"></line>
                                     <line x1="16" y1="3" x2="14" y2="21"></line>
                                 </svg>
-                            </div>
+                            </template>
                             <span class="channel-name">{{ activeChannel }}</span>
-                        </button>
+                        </UiButton>
                     </div>
 
                     <div class="header-right">
-                        <button class="channel-toggle-btn online-users-btn" @click="toggleRightSidebar">
-                            <svg class="online-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                            <span class="online-text">В сети: {{ allUsers.filter(u => u.online).length }}</span>
-                        </button>
+                        <UiButton variant="ghost" @click="toggleRightSidebar" class="channel-toggle-btn">
+                            <template #prepend>
+                                <svg class="online-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </template>
+                            В сети: {{ allUsers.filter(u => u.online).length }}
+                        </UiButton>
                     </div>
                 </div>
 
@@ -319,18 +328,18 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <div class="right-sidebar" :class="{ 'is-open': isRightSidebarOpen }">
+            <UiSidebar position="right" :isOpen="isRightSidebarOpen" class="app-right-sidebar">
                 <div class="right-sidebar-header">
                     <span class="right-sidebar-title">В сети</span>
-                    <button class="close-sidebar-btn" @click="toggleRightSidebar">
+                    <UiIconButton @click="toggleRightSidebar">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                    </button>
+                    </UiIconButton>
                 </div>
                 <UsersList :users="allUsers" />
-            </div>
+            </UiSidebar>
         </div>
     </div>
 </template>
@@ -376,24 +385,14 @@ onUnmounted(() => {
 }
 
 /* Прицельная анимация только для блоков, которым она реально нужна */
-.sidebar, .right-sidebar, .chat-inner-header, .user-profile, .channel {
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.chat-inner-header {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .channel-toggle-btn {
-    background: transparent;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 8px;
-    color: var(--text-primary);
     margin-left: -10px;
-    transition: background-color 0.2s ease;
 }
-.channel-toggle-btn:hover { background-color: var(--border); }
+
 .channel-hash { color: var(--text-secondary); display: flex; align-items: center; justify-content: center; }
 .channel-name { font-size: 17px; font-weight: 600; letter-spacing: 0.3px; }
 
@@ -404,60 +403,21 @@ onUnmounted(() => {
     position: relative;
 }
 
-.sidebar {
-    width: 260px;
-    background-color: var(--bg-surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-.sidebar:not(.is-open) { margin-left: -261px; }
-
 .channels { padding: 10px 10px; flex: 1; overflow-y: auto; }
-.channel { padding: 10px 15px; border-radius: 8px; color: var(--text-muted); cursor: pointer; font-weight: 500; user-select: none; }
-.channel:hover { background-color: var(--border); color: var(--text-primary); }
-.channel.active { background-color: var(--bg-active); color: var(--accent); }
 
-.sidebar-footer {
+.sidebar-profile-wrap {
     padding: 12px 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--border);
-    background-color: transparent;
-    flex-shrink: 0;
 }
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+
+.app-user-profile {
     background-color: var(--bg-active);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 12px 12px;
+    padding: 12px;
 }
-.avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    background-color: var(--bg-surface);
-    flex-shrink: 0;
-}
-.user-info { display: flex; flex-direction: column; min-width: 0; }
-.username { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.status-indicator { display: flex; align-items: center; gap: 6px; height: 14px; margin-top: 2px; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #dc3545; flex-shrink: 0;}
-.status-dot.online { background-color: var(--accent); box-shadow: 0 0 8px rgba(95, 202, 8, 0.4); }
-.status-text { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
-.fade-status-enter-active, .fade-status-leave-active { transition: opacity 0.5s ease; }
-.fade-status-enter-from, .fade-status-leave-to { opacity: 0; }
 
-.sidebar-overlay { display: none; }
+.mobile-only { display: none; }
 
 .chat-container {
     flex: 1;
@@ -482,11 +442,11 @@ onUnmounted(() => {
 .online-users-btn:hover .online-icon { color: var(--text-primary); }
 .online-text { font-size: 14px; font-weight: 600; }
 
-.chat-area { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    min-height: 0; 
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     position: relative;
     /* Учитываем зону безопасности (челки и полоски навигации iOS/Android) */
     padding-bottom: env(safe-area-inset-bottom);
@@ -508,16 +468,6 @@ onUnmounted(() => {
 ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-.right-sidebar {
-    width: 240px;
-    background-color: var(--bg-surface);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-.right-sidebar:not(.is-open) { margin-right: -241px; }
-
 /* Скрываем шапку правой панели на ПК */
 .right-sidebar-header {
     display: none;
@@ -527,72 +477,47 @@ onUnmounted(() => {
     justify-content: space-between;
 }
 .right-sidebar-title { font-weight: 600; font-size: 16px; color: var(--text-primary); }
-.close-sidebar-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-}
-.close-sidebar-btn:hover { color: var(--text-primary); }
 
 @media (max-width: 768px) {
     .chat-inner-header { padding: 0 16px; }
 
-    .sidebar {
+    .app-sidebar, .app-right-sidebar {
         position: fixed;
-        top: 48px; left: 0; bottom: 0;
+        top: 48px; bottom: 0;
         z-index: 100;
-        margin-left: 0 !important;
-        transform: translateX(-100%);
+        margin: 0 !important;
         box-shadow: 5px 0 15px rgba(0,0,0,0.5);
     }
-    .right-sidebar {
-        position: fixed;
-        top: 48px; right: 0; bottom: 0;
-        z-index: 100;
-        margin-right: 0 !important;
+
+    .app-sidebar {
+        left: 0;
+        transform: translateX(-100%);
+    }
+
+    .app-right-sidebar {
+        right: 0;
         transform: translateX(100%);
         box-shadow: -5px 0 15px rgba(0,0,0,0.5);
     }
-    
-    .right-sidebar-header { display: flex; } /* Показываем шапку с крестиком на мобилке */
 
-    .app-layout.light-theme .sidebar, .app-layout.light-theme .right-sidebar {
+    .right-sidebar-header { display: flex; }
+
+    .app-layout.light-theme .app-sidebar, .app-layout.light-theme .app-right-sidebar {
         box-shadow: 5px 0 15px rgba(0,0,0,0.1);
     }
-    .app-layout.light-theme .right-sidebar {
+    .app-layout.light-theme .app-right-sidebar {
         box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     }
-    .sidebar.is-open { transform: translateX(0); }
-    .right-sidebar.is-open { transform: translateX(0); }
 
-    .sidebar-overlay {
+    .app-sidebar.is-open { transform: translateX(0); }
+    .app-right-sidebar.is-open { transform: translateX(0); }
+
+    .mobile-only {
         display: block;
-        position: fixed;
-        top: 48px; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 99;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease, background-color 0.3s ease;
+        top: 48px;
     }
-    
-    /* Скрываем overlay правой панели, если мы на десктопе, чтобы не перекрывало чат */
-    .right-overlay:not(.is-open) { display: none; }
-    
-    .app-layout.light-theme .sidebar-overlay {
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(2px);
-    }
-    .sidebar-overlay.is-open {
-        display: block;
-        opacity: 1;
-        pointer-events: auto;
-    }
+
+    .mobile-only.right-overlay:not(.is-visible) { display: none; }
 
     .messages-container { padding: 16px;padding-bottom: 64px; }
 }
