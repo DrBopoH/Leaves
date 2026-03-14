@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import UiButton from './ui-kit/UiButton.vue';
 
 const props = defineProps<{
     isLogin: boolean;
@@ -37,7 +38,7 @@ const isFormValid = computed(() => {
 
 const handleSubmit = () => {
     if (!isFormValid.value) return;
-    
+
     if (props.isLogin) {
         emit('submitLogin', { email: email.value, password: password.value, rememberMe: rememberMe.value });
     } else {
@@ -55,7 +56,7 @@ const handleInput = () => {
         <div style="position: relative;">
             <transition name="fade" mode="out-in">
                 <div :key="isLogin ? 'login-inputs' : 'reg-inputs'" class="inputs-container">
-                    
+
                     <div v-if="!isLogin" class="input-box" style="margin-bottom: 28px;">
                         <input type="text" v-model="username" placeholder="username" required />
                     </div>
@@ -92,14 +93,16 @@ const handleInput = () => {
             </div>
         </div>
 
-        <button type="submit" class="submit-action" :class="{ 'is-loading': isLoading }" :disabled="!isFormValid || isLoading">
-            <span v-if="!isLoading">{{ isLogin ? 'Sign in' : 'Sign up' }}</span>
-            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="4" cy="12" r="3"><animate id="a1" begin="0;a3.end-0.25s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
-                <circle cx="12" cy="12" r="3"><animate begin="a1.begin+0.15s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
-                <circle cx="20" cy="12" r="3"><animate id="a3" begin="a1.begin+0.3s" attributeName="r" dur="0.75s" values="3;.2;3"/></circle>
-            </svg>
-        </button>
+        <UiButton
+            type="submit"
+            variant="primary"
+            size="large"
+            :is-loading="isLoading"
+            :disabled="!isFormValid"
+            class="submit-btn"
+        >
+            {{ isLogin ? 'Sign in' : 'Sign up' }}
+        </UiButton>
     </form>
 </template>
 
@@ -156,14 +159,11 @@ const handleInput = () => {
 .error-text { font-size: 13px; font-weight: 500; text-align: center; margin: 0; padding: 2px 0; }
 .error-client { color: var(--color-text-secondary, #8a867f); }
 .error-server { color: #ff5555; }
-.submit-action {
-    width: 100%; border: none; border-radius: 30px; padding: 14px; font-size: 15px;
-    font-weight: 600; transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;
+
+.submit-btn {
+    width: 100%;
 }
-.submit-action:disabled { background-color: var(--color-border, #0f1714); color: var(--color-text-secondary, #64615c); cursor: not-allowed; box-shadow: none; }
-.submit-action:not(:disabled):not(.is-loading) { background-color: #5fca08; color: #050807; cursor: pointer; box-shadow: 0 4px 15px rgba(95, 202, 8, 0.15); }
-.submit-action:not(:disabled):not(.is-loading):hover { background-color: #4da806; box-shadow: 0 6px 20px rgba(95, 202, 8, 0.25); transform: translateY(-1px); }
-.submit-action.is-loading { background-color: var(--color-surface-alt, #040605); color: #5fca08; border: 1px solid #5fca08; cursor: wait; }
+
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .fade-enter-from { opacity: 0; transform: translateY(-5px); }
 .fade-leave-to { opacity: 0; transform: translateY(5px); }
