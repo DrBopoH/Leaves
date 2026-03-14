@@ -28,6 +28,9 @@
 
 	/* Transparencies */
 	--color-overlay: rgba(5, 8, 7, 0.8);
+
+	/* Components */
+	--avatar-lightness: 65%;
 }
 
 [data-theme="light"] {
@@ -60,6 +63,9 @@
 
 	/* Transparencies */
 	--color-overlay: rgba(244, 247, 246, 0.8);
+
+	/* Components */
+	--avatar-lightness: 40%;
 }
 
 * {

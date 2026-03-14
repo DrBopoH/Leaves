@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { signinUser, signupUser, fetchMe } from '../api/auth';
 import { useUserStore } from '../stores/user';
 
-// 🔌 ИМПОРТИРУЕМ НАШИ КОМПОНЕНТЫ
 import AuthHeader from '../components/AuthHeader.vue';
 import AuthForm from '../components/AuthForm.vue';
 import AuthSocial from '../components/AuthSocial.vue';
@@ -22,37 +21,37 @@ const toggleMode = () => {
     serverMessage.value = '';
 };
 
-// Обработка логина (приходит из AuthForm)
 const handleLogin = async (payload: any) => {
-    isLoading.value = true;
-    serverMessage.value = '';
-    try {
-        const result = await signinUser(payload);
-        serverMessage.value = result.message;
+	isLoading.value = true;
+	serverMessage.value = '';
 
-        const user = await fetchMe();
-        if (user) userStore.setUser(user);
-        router.push('/app');
-    } catch (error: any) {
-        serverMessage.value = error.message || 'Internal server error';
-    } finally {
-        isLoading.value = false;
-    }
+	try {
+		const result = await signinUser(payload);
+		serverMessage.value = result.message;
+
+		const user = await fetchMe();
+		if (user) userStore.setUser(user);
+		router.push('/app');
+	} catch (error: any) {
+		serverMessage.value = error.message || 'An unexpected error occurred during login.';
+	} finally {
+		isLoading.value = false;
+	}
 };
 
-// Обработка регистрации (приходит из AuthForm)
 const handleSignup = async (payload: any) => {
-    isLoading.value = true;
-    serverMessage.value = '';
-    try {
-        const result = await signupUser(payload);
-        serverMessage.value = result.message;
-        setTimeout(() => { isLogin.value = true; }, 1500);
-    } catch (error: any) {
-        serverMessage.value = error.message || 'Internal server error';
-    } finally {
-        isLoading.value = false;
-    }
+	isLoading.value = true;
+	serverMessage.value = '';
+
+	try {
+		const result = await signupUser(payload);
+		serverMessage.value = result.message;
+		setTimeout(() => { isLogin.value = true; }, 1500);
+	} catch (error: any) {
+		serverMessage.value = error.message || 'An unexpected error occurred during registration.';
+	} finally {
+		isLoading.value = false;
+	}
 };
 </script>
 

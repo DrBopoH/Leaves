@@ -10,23 +10,44 @@ const defaultHeaders = {
 };
 
 export const fetchChatHistory = async () => {
-	const response = await fetch(`${BASE_URL}/messages`, {
-		method: 'GET',
-		headers: defaultHeaders,
-		credentials: 'include',
-	});
+	try {
+		const response = await fetch(`${BASE_URL}/messages`, {
+			method: 'GET',
+			headers: defaultHeaders,
+			credentials: 'include',
+		});
 
-	if (!response.ok) throw new Error('Failed to fetch history');
-	return response.json();
+		if (!response.ok) {
+			if (response.status === 401) {
+				throw new Error('Unauthorized. Please log in again to view chat history.');
+			}
+			throw new Error('Server failed to load chat messages.');
+		}
+		return await response.json();
+	} catch (error: any) {
+		if (error.name === 'TypeError') {
+			throw new Error('Network error. Failed to load chat history.');
+		}
+		throw error;
+	}
 };
 
 export const fetchUsers = async () => {
-	const response = await fetch(`${BASE_URL}/users`, {
-		method: 'GET',
-		headers: defaultHeaders,
-		credentials: 'include',
-	});
+	try {
+		const response = await fetch(`${BASE_URL}/users`, {
+			method: 'GET',
+			headers: defaultHeaders,
+			credentials: 'include',
+		});
 
-	if (!response.ok) throw new Error('Failed to fetch users');
-	return response.json();
+		if (!response.ok) {
+			throw new Error('Failed to retrieve active users list.');
+		}
+		return await response.json();
+	} catch (error: any) {
+		if (error.name === 'TypeError') {
+			throw new Error('Network error while fetching users list.');
+		}
+		throw error;
+	}
 };

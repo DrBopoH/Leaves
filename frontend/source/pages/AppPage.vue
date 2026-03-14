@@ -51,16 +51,16 @@ const generateAndSortUsers = async () => {
 };
 
 const typingText = computed(() => {
-    const users = activeTypingUsers.value;
-    const count = users.length;
-    if (count === 0) return '';
-    if (count === 1) return `${users[0]} печатает...`;
-    if (count === 2) return `${users[0]} и ${users[1]} печатают...`;
-    if (count === 3) return `${users[0]}, ${users[1]} и ${users[2]} печатают...`;
-    if (count === 4) return `${users[0]}, ${users[1]}, ${users[2]} и ${users[3]} печатают...`;
+	const users = activeTypingUsers.value;
+	const count = users.length;
+	if (count === 0) return '';
+	if (count === 1) return `${users[0]} is typing...`;
+	if (count === 2) return `${users[0]} and ${users[1]} are typing...`;
+	if (count === 3) return `${users[0]}, ${users[1]} and ${users[2]} are typing...`;
+	if (count === 4) return `${users[0]}, ${users[1]}, ${users[2]} and ${users[3]} are typing...`;
 
-    const remaining = count - 3;
-    return `${users[0]}, ${users[1]}, ${users[2]} и ещё ${remaining} человек печатают...`;
+	const remaining = count - 3;
+	return `${users[0]}, ${users[1]}, ${users[2]} and ${remaining} others are typing...`;
 });
 
 const handleTypingEvent = (username: string) => {
@@ -298,14 +298,14 @@ onUnmounted(() => {
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                 </svg>
                             </template>
-                            В сети: {{ allUsers.filter(u => u.online).length }}
+                            Online: {{ allUsers.filter(u => u.online).length }}
                         </UiButton>
                     </div>
                 </div>
 
                 <div class="chat-area">
                     <div class="messages-container" ref="messagesContainer">
-                        <div v-if="messages.length === 0" class="empty-state">Пока нет сообщений. Поздоровайтесь!</div>
+                        <div v-if="messages.length === 0" class="empty-state">No messages yet. Say hi!</div>
 
                         <ChatMessage
                             v-for="(msg, index) in messages"
@@ -330,7 +330,7 @@ onUnmounted(() => {
 
             <UiSidebar position="right" :isOpen="isRightSidebarOpen" class="app-right-sidebar">
                 <div class="right-sidebar-header">
-                    <span class="right-sidebar-title">В сети</span>
+                    <span class="right-sidebar-title">Online</span>
                     <UiIconButton @click="toggleRightSidebar">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -365,7 +365,6 @@ onUnmounted(() => {
     background-color: var(--bg-base);
     color: var(--text-primary);
     overflow: hidden;
-    /* Убрали тяжелую анимацию всех элементов, оставили только плавную смену фона и цвета */
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -384,7 +383,6 @@ onUnmounted(() => {
     --link-hover: #5fca08;
 }
 
-/* Прицельная анимация только для блоков, которым она реально нужна */
 .chat-inner-header {
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
@@ -448,14 +446,14 @@ onUnmounted(() => {
     flex-direction: column;
     min-height: 0;
     position: relative;
-    /* Учитываем зону безопасности (челки и полоски навигации iOS/Android) */
+    /* Account for safe areas (iOS/Android notches and home bars) */
     padding-bottom: env(safe-area-inset-bottom);
 }
 
 .messages-container {
     flex: 1;
     padding: 8px 12px;
-    padding-bottom: 72px; /* Место под инпут */
+    padding-bottom: 72px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -468,7 +466,6 @@ onUnmounted(() => {
 ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-/* Скрываем шапку правой панели на ПК */
 .right-sidebar-header {
     display: none;
     padding: 16px;

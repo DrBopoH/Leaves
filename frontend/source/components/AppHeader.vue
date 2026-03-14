@@ -20,7 +20,7 @@ const { isDark: isDarkTheme, toggleTheme } = useTheme();
 			class="header-center"
 			@click="router.push('/')"
 			style="cursor: pointer;"
-			title="На главную"
+			title="Home"
 		>
 			<UiLogo size="small" text="Leaves" />
 		</div>
@@ -28,7 +28,7 @@ const { isDark: isDarkTheme, toggleTheme } = useTheme();
 		<div class="header-right">
 			<UiIconButton
 				@click="toggleTheme"
-				title="Переключить тему"
+				title="Toggle Theme"
 			>
 				<svg v-if="isDarkTheme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<circle cx="12" cy="12" r="5"></circle>
