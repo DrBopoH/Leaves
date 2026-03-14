@@ -82,23 +82,98 @@ const props = defineProps<{
 }
 
 .message-username {
-	font-weight: 600;
-	font-size: 15px;
+	font-weight: var(--font-weight-semibold);
+	font-size: var(--font-size-md);
 }
 
 .message-time {
-	font-size: 12px;
+	font-size: var(--font-size-xs);
 	color: var(--color-text-secondary);
+}
+
+.message-content :deep(.msg-text) {
+	font-size: var(--font-size-md);
+	line-height: var(--line-height-md);
+	color: var(--color-text-primary);
+	margin: 0;
+	word-break: break-word;
+}
+
+.message-content :deep(h1), .message-content :deep(h2), .message-content :deep(h3) {
+    margin: 4px 0;
+    line-height: 1.2;
+}
+.message-content :deep(.msg-quote) {
+	border-left: 3px solid var(--color-accent);
+	margin: 4px 0;
+	padding: 4px 10px;
+	color: var(--color-text-secondary);
+	background-color: var(--color-accent-alpha);
+	border-radius: 0 4px 4px 0;
+}
+
+.message-content :deep(.msg-divider) {
+	border: none;
+	border-top: 2px solid var(--color-border-hover);
+	border-radius: 2px;
+	transition: width var(--theme-transition-duration) ease;
+}
+
+.message-content :deep(.msg-text-divider) {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin: 8px 0;
+	color: var(--color-text-secondary);
+	font-weight: var(--font-weight-semibold);
+	font-size: var(--font-size-sm);
+	letter-spacing: var(--letter-spacing-wide);
+	width: 100%;
+}
+
+.message-content :deep(.msg-text-divider span) {
+	flex-shrink: 0;
+	max-width: calc(100% - 24px);
+	text-align: center;
+	word-break: break-word;
+}
+
+.message-content :deep(.msg-text-divider-line) {
+	height: 2px;
+	background-color: var(--color-border-hover);
+	border-radius: 2px;
+	flex-basis: 0;
+}
+
+
+.message-content :deep(.msg-image) {
+	max-width: 100%;
+	max-height: 250px;
+	border-radius: 8px;
+	margin-top: 8px;
+	border: 1px solid var(--color-border);
+	display: block;
+}
+
+.message-content :deep(.msg-link) {
+	color: var(--color-accent);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.message-content :deep(.msg-link:hover) {
+	color: var(--color-accent-hover);
 }
 
 .message-bubble {
 	background-color: transparent;
 	border: 1px solid transparent;
-	padding: 2px 0;
+	padding: 10px 16px;
 	border-radius: 8px;
 	color: var(--color-text-primary);
-	font-size: 15px;
-	line-height: 1.5;
+	font-size: var(--font-size-md);
+	line-height: var(--line-height-md);
 	word-break: break-word;
 }
 
@@ -107,6 +182,6 @@ const props = defineProps<{
 	border: 1px solid var(--color-border);
 	padding: 10px 16px;
 	border-radius: 16px;
-	border-top-left-radius: 4px;
+	border-top-left-radius: 8px;
 }
 </style>

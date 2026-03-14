@@ -124,7 +124,7 @@ watch(() => props.modelValue, (newVal) => {
 	display: flex;
 	align-items: flex-end;
 	padding: 12px 20px;
-	transition: border-color 0.2s ease;
+	transition: border-color var(--theme-transition-duration) ease, box-shadow var(--theme-transition-duration) ease;
 }
 
 .input-wrapper:focus-within {
@@ -135,13 +135,12 @@ watch(() => props.modelValue, (newVal) => {
 	flex: 1;
 	background: transparent;
 	border: none;
-	color: var(--color-text-primary) !important;
-	font-size: 14px;
+	color: var(--color-text-primary);
+	font-size: var(--font-size-base);
 	outline: none;
 	resize: none;
 	max-height: 120px;
-	font-family: inherit;
-	line-height: 1.4;
+	line-height: var(--line-height-base);
 	padding: 4px 0;
 	word-wrap: break-word;
 	white-space: pre-wrap;
@@ -149,7 +148,7 @@ watch(() => props.modelValue, (newVal) => {
 }
 
 .chat-input::placeholder {
-	color: var(--color-text-secondary) !important;
+	color: var(--color-text-secondary);
 }
 
 .send-btn {
@@ -163,7 +162,7 @@ watch(() => props.modelValue, (newVal) => {
 	justify-content: center;
 	align-items: center;
 	cursor: pointer;
-	transition: background-color 0.2s, transform 0.2s, color 0.2s;
+	transition: background-color var(--theme-transition-duration), transform 0.2s, color var(--theme-transition-duration), box-shadow var(--theme-transition-duration);
 	flex-shrink: 0;
 	margin-left: 10px;
 	margin-bottom: 2px;

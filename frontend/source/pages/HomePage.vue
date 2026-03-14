@@ -121,17 +121,6 @@ const { isDark, toggleTheme } = useTheme();
 </template>
 
 <style scoped>
-@keyframes fadeInUp {
-	from { opacity: 0; transform: translateY(30px); }
-	to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes float {
-	0% { transform: translateY(0px); }
-	50% { transform: translateY(-10px); }
-	100% { transform: translateY(0px); }
-}
-
 .landing-page {
 	position: relative;
 	width: 100%;
@@ -155,7 +144,7 @@ const { isDark, toggleTheme } = useTheme();
 	background: var(--color-overlay);
 	backdrop-filter: blur(12px);
 	border-bottom: 1px solid var(--color-border);
-	transition: background-color 0.3s ease, border-color 0.3s ease;
+	transition: background-color var(--theme-transition-duration) ease, border-color var(--theme-transition-duration) ease;
 }
 
 .logo-link {
@@ -198,27 +187,27 @@ const { isDark, toggleTheme } = useTheme();
 }
 
 .title {
-	font-size: 3.5rem;
-	font-weight: 800;
+	font-size: var(--font-size-hero);
+	font-weight: var(--font-weight-extrabold);
 	color: var(--color-text-primary);
 	margin-bottom: 20px;
-	letter-spacing: -1px;
-	line-height: 1.2;
-	transition: color 0.3s ease;
+	letter-spacing: var(--letter-spacing-tight);
+	line-height: var(--line-height-sm);
+	transition: color var(--theme-transition-duration) ease;
 }
 
 .highlight {
 	color: var(--color-accent);
 	text-shadow: 0 0 20px var(--color-accent-shadow);
-	transition: color 0.3s ease, text-shadow 0.3s ease;
+	transition: color var(--theme-transition-duration) ease, text-shadow var(--theme-transition-duration) ease;
 }
 
 .subtitle {
-	font-size: 1.25rem;
+	font-size: var(--font-size-h2);
 	color: var(--color-text-secondary);
 	margin-bottom: 40px;
-	line-height: 1.6;
-	transition: color 0.3s ease;
+	line-height: var(--line-height-lg);
+	transition: color var(--theme-transition-duration) ease;
 }
 
 /* Блок преимуществ */
@@ -238,8 +227,8 @@ const { isDark, toggleTheme } = useTheme();
 	.landing-navbar {
 		padding: 1rem 1.5rem;
 	}
-	.title { font-size: 2.5rem; }
-	.subtitle { font-size: 1.1rem; }
+	.title { font-size: var(--font-size-h1); }
+	.subtitle { font-size: var(--font-size-h3); }
 	.hero { margin-bottom: 50px; }
 }
 </style>

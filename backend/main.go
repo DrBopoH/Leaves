@@ -20,6 +20,7 @@
 package main
 
 import (
+	"slices"
 	"net/http"
 
 	"fmt"
@@ -45,11 +46,8 @@ func enableCORS(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 
 		var allowedOrigin string = ""
-		for _, o := range allowedOrigins {
-			if o == origin {
-				allowedOrigin = origin
-				break
-			}
+		if slices.Contains(allowedOrigins, origin) {
+			allowedOrigin = origin
 		}
 
 		if allowedOrigin == "" && origin != "" {

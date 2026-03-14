@@ -50,7 +50,7 @@ const emit = defineEmits<{
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+	transition: background-color var(--theme-transition-duration) ease, color var(--theme-transition-duration) ease, border-color var(--theme-transition-duration) ease, box-shadow var(--theme-transition-duration) ease, transform 0.1s ease;
 	outline: none;
 }
 
@@ -92,7 +92,7 @@ const emit = defineEmits<{
 	color: var(--color-accent);
 	border: 2px solid var(--color-accent);
 	box-shadow: 0 0 15px var(--color-accent-shadow);
-	transition: all 0.3s ease;
+	transition: background-color var(--theme-transition-duration) ease, color var(--theme-transition-duration) ease, border var(--theme-transition-duration) ease, box-shadow var(--theme-transition-duration) ease, transform 0.1s ease;
 }
 
 .variant-primary:hover:not(:disabled) {

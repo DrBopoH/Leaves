@@ -349,8 +349,6 @@ onUnmounted(() => {
 	display: flex;
 	flex-direction: column;
 	height: 100dvh;
-	background-color: var(--color-bg);
-	color: var(--color-text-primary);
 	overflow: hidden;
 }
 
@@ -361,7 +359,7 @@ onUnmounted(() => {
 }
 
 .channel-hash { color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; }
-.channel-name { font-size: 17px; font-weight: 600; letter-spacing: 0.3px; }
+.channel-name { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); letter-spacing: var(--letter-spacing-base); }
 
 .main-content {
     display: flex;
@@ -391,7 +389,6 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background-color: transparent;
 }
 .chat-inner-header {
     height: 60px;
@@ -407,7 +404,7 @@ onUnmounted(() => {
 .online-users-btn { margin-left: 0; }
 .online-icon { color: var(--color-text-secondary); }
 .online-users-btn:hover .online-icon { color: var(--color-text-primary); }
-.online-text { font-size: 14px; font-weight: 600; }
+.online-text { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); }
 
 .chat-area {
     flex: 1;
@@ -427,8 +424,10 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     scroll-behavior: smooth;
+    background-color: var(--color-bg);
+    transition: background-color var(--theme-transition-duration) ease;
 }
-.empty-state { text-align: center; color: var(--color-text-secondary); margin-top: auto; margin-bottom: auto; font-size: 15px; }
+.empty-state { text-align: center; color: var(--color-text-secondary); margin-top: auto; margin-bottom: auto; font-size: var(--font-size-md); }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -442,7 +441,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: space-between;
 }
-.right-sidebar-title { font-weight: 600; font-size: 16px; color: var(--color-text-primary); }
+.right-sidebar-title { font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg); color: var(--color-text-primary); }
 
 @media (max-width: 768px) {
     .chat-inner-header { padding: 0 16px; }

@@ -1,58 +1,62 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { signinUser, signupUser, fetchMe } from '../api/auth';
-import { useUserStore } from '../stores/user';
+	// Copyright (C) 2026 MorangTong Creative Studio
+	// SPDX-License-Identifier: AGPL-3.0-or-later
 
-import AuthHeader from '../components/AuthHeader.vue';
-import AuthForm from '../components/AuthForm.vue';
-import AuthSocial from '../components/AuthSocial.vue';
-import UiGlowBackground from '../components/ui-kit/UiGlowBackground.vue';
+	// source/pages/AuthPage.vue
+	import { ref } from 'vue';
+	import { useRouter } from 'vue-router';
+	import { useUserStore } from '../stores/user';
+	import { signinUser, signupUser, fetchMe } from '../api/auth';
 
-const router = useRouter();
-const userStore = useUserStore();
+	import AuthHeader from '../components/AuthHeader.vue';
+	import AuthForm from '../components/AuthForm.vue';
+	import AuthSocial from '../components/AuthSocial.vue';
+	import UiGlowBackground from '../components/ui-kit/UiGlowBackground.vue';
 
-const isLogin = ref(true);
-const serverMessage = ref('');
-const isLoading = ref(false);
+	const router = useRouter();
+	const userStore = useUserStore();
 
-const toggleMode = () => {
-    isLogin.value = !isLogin.value;
-    serverMessage.value = '';
-};
+	const isLogin = ref(true);
+	const serverMessage = ref('');
+	const isLoading = ref(false);
 
-const handleLogin = async (payload: any) => {
-	isLoading.value = true;
-	serverMessage.value = '';
+	const toggleMode = () => {
+	    isLogin.value = !isLogin.value;
+	    serverMessage.value = '';
+	};
 
-	try {
-		const result = await signinUser(payload);
-		serverMessage.value = result.message;
+	const handleLogin = async (payload: any) => {
+		isLoading.value = true;
+		serverMessage.value = '';
 
-		const user = await fetchMe();
-		if (user) userStore.setUser(user);
-		router.push('/app');
-	} catch (error: any) {
-		serverMessage.value = error.message || 'An unexpected error occurred during login.';
-	} finally {
-		isLoading.value = false;
-	}
-};
+		try {
+			const result = await signinUser(payload);
+			serverMessage.value = result.message;
 
-const handleSignup = async (payload: any) => {
-	isLoading.value = true;
-	serverMessage.value = '';
+			const user = await fetchMe();
+			if (user) userStore.setUser(user);
+			router.push('/app');
+		} catch (error: any) {
+			serverMessage.value = error.message || 'An unexpected error occurred during login.';
+		} finally {
+			isLoading.value = false;
+		}
+	};
 
-	try {
-		const result = await signupUser(payload);
-		serverMessage.value = result.message;
-		setTimeout(() => { isLogin.value = true; }, 1500);
-	} catch (error: any) {
-		serverMessage.value = error.message || 'An unexpected error occurred during registration.';
-	} finally {
-		isLoading.value = false;
-	}
-};
+	const handleSignup = async (payload: any) => {
+		isLoading.value = true;
+		serverMessage.value = '';
+
+		try {
+			const result = await signupUser(payload);
+			serverMessage.value = result.message;
+			setTimeout(() => { isLogin.value = true; }, 1500);
+		} catch (error: any) {
+			serverMessage.value = error.message || 'An unexpected error occurred during registration.';
+		} finally {
+			isLoading.value = false;
+		}
+	};
 </script>
 
 <template>

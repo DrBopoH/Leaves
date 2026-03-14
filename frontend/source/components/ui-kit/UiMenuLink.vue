@@ -35,7 +35,7 @@ const props = defineProps<{
 	cursor: pointer;
 	font-weight: 500;
 	user-select: none;
-	transition: background-color 0.2s ease, color 0.2s ease;
+	transition: background-color var(--theme-transition-duration) ease, color var(--theme-transition-duration) ease;
 }
 
 .ui-menu-link:hover {
