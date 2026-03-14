@@ -58,24 +58,3 @@ export const fetchMe = async () => {
     return data.user;
 };
 
-export const fetchChatHistory = async () => {
-    const response = await fetch(`${BASE_URL}/messages`, {
-        method: 'GET',
-        headers: defaultHeaders,
-        credentials: 'include',
-    });
-
-    if (!response.ok) throw new Error('Failed to fetch history');
-    return response.json();
-};
-
-export const fetchUsers = async () => {
-    const response = await fetch(`${BASE_URL}/users`, {
-        method: 'GET',
-        headers: defaultHeaders,
-        credentials: 'include',
-    });
-
-    if (!response.ok) throw new Error('Failed to fetch users');
-    return response.json();
-};

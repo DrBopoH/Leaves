@@ -12,10 +12,10 @@ const router = createRouter(
     {
         history: createWebHashHistory(import.meta.env.BASE_URL),
         routes: [
-            { path: '/',       name: 'landing', component: HomePage },
-            { path: '/auth', name: 'auth', component: AuthPage },
-            { path: '/app',    name: 'app', component: AppPage },
-            { path: '/admin',    name: 'admin', component: AdminPage },
+            { path: '/',      name: 'home',  component: HomePage },
+            { path: '/auth',  name: 'auth',  component: AuthPage },
+            { path: '/app',   name: 'app',   component: AppPage },
+            { path: '/admin', name: 'admin', component: AdminPage },
         ],
     }
 )
