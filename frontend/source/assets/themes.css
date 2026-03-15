@@ -163,6 +163,16 @@ html, body {
 	100% { transform: translateY(0px); }
 }
 
+@keyframes pulseHighlight {
+	0% { box-shadow: 0 0 0 0 var(--color-accent-shadow); }
+	70% { box-shadow: 0 0 0 15px transparent; }
+	100% { box-shadow: 0 0 0 0 transparent; }
+}
+	
+.pulse-highlight {
+	animation: pulseHighlight 1s ease-out;
+}
+
 #app {
 	background-color: transparent;
 }

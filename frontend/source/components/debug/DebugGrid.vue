@@ -4,11 +4,15 @@
 
 	// source/components/debug/DebugGrid.vue
 	import { ref } from 'vue';
+	import DebugShowcase from './DebugShowcase.vue';
+	import DebugSection from './DebugSection.vue';
 	import UiBoard from '../ui-kit/UiBoard.vue';
-	import UiAlert from '../ui-kit/UiAlert.vue';
+	
 
+	import UiAlert from '../ui-kit/UiAlert.vue';	
+	
 	const isAlertVisible = ref(false);
-
+	
 	const toggleAlert = () => {
 		isAlertVisible.value = !isAlertVisible.value;
 	};
@@ -16,24 +20,22 @@
 
 <template>
 	<UiBoard>
-		<div class="debug-content">
-			<UiAlert show type="info">Сдвинь меня средней кнопкой мыши!</UiAlert>
-			<UiAlert :show="isAlertVisible" type="error">Критическая ошибка!</UiAlert>
-			<button @click="toggleAlert">Показать / Скрыть ошибку</button>
-		</div>
+		<DebugShowcase>
+			<DebugSection id="alerts" title="UiAlert">
+				<div>
+					<UiAlert show type="info">Move me with the middle mouse button!</UiAlert>
+					<UiAlert :show="isAlertVisible" type="error">Critical error!</UiAlert>
+					<button @click="toggleAlert">Show / Hide Error</button>
+				</div>
+			</DebugSection>
+
+			<DebugSection id="buttons" title="UiButton">
+				<div>Buttons will be here...</div>
+			</DebugSection>
+
+			<DebugSection id="inputs" title="UiInput">
+				<div>Inputs will be here...</div>
+			</DebugSection>
+		</DebugShowcase>
 	</UiBoard>
 </template>
-
-<style scoped>
-	.debug-content {
-		padding: 40px;
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-	}
-
-	.debug-content button, 
-	.debug-content .ui-alert {
-		cursor: default;
-	}
-</style>

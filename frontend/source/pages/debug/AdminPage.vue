@@ -15,7 +15,7 @@
 	const adminKeyInput = ref('');
 	const authError = ref('');
 
-	const SECRET_ADMIN_KEY = '777'; 
+	const SECRET_ADMIN_KEY = '777';
 
 	const handleLogin = () => {
 		if (adminKeyInput.value === SECRET_ADMIN_KEY) {
@@ -23,7 +23,7 @@
 			authError.value = '';
 			loadAdminData();
 		} else {
-			authError.value = 'Неверный ключ доступа';
+			authError.value = 'Invalid access key';
 			adminKeyInput.value = '';
 		}
 	};
@@ -45,7 +45,7 @@
 		totalRegistered.value = 142;
 		onlineCount.value = 12;
 		totalMessages.value = 15843;
-		
+
 		users.value = [
 			{ id: '1', username: 'admin', isOnline: true, isBanned: false },
 			{ id: '2', username: 'johndoe', isOnline: true, isBanned: false },
@@ -56,39 +56,38 @@
 	};
 
 	const handleBanUser = (user: User) => {
-		const action = user.isBanned ? 'разбанить' : 'забанить';
-		if (!confirm(`Точно хочешь ${action} пользователя ${user.username}?`)) return;
-		
+		const action = user.isBanned ? 'unban' : 'ban';
+		if (!confirm(`Are you sure you want to ${action} user ${user.username}?`)) return;
+
 		user.isBanned = !user.isBanned;
 	};
 
 	const goBack = () => {
-		router.push('/'); 
+		router.push('/');
 	};
 </script>
 
 <template>
 	<div class="app-layout" :class="{ 'light-theme': !isDarkTheme }">
-		
 		<div v-if="!isAuthenticated" class="auth-overlay">
-			<button class="theme-btn absolute-theme-btn" @click="toggleTheme" title="Переключить тему">
+			<button class="theme-btn absolute-theme-btn" @click="toggleTheme" title="Toggle theme">
 				<svg v-if="isDarkTheme" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
 				<svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
 			</button>
-			<button class="back-btn absolute-back-btn" @click="goBack">На главную</button>
+			<button class="back-btn absolute-back-btn" @click="goBack">Go to Home</button>
 
 			<div class="auth-box">
-				<h2>Доступ ограничен</h2>
-				<p>Введите секретный ключ администратора</p>
-				<input 
-					type="password" 
-					v-model="adminKeyInput" 
+				<h2>Access Restricted</h2>
+				<p>Enter the secret admin key</p>
+				<input
+					type="password"
+					v-model="adminKeyInput"
 					@keyup.enter="handleLogin"
-					placeholder="Секретный ключ..."
+					placeholder="Secret key..."
 					class="auth-input"
-				>
+				/>
 				<span class="error-msg" v-if="authError">{{ authError }}</span>
-				<button class="auth-btn" @click="handleLogin">Войти</button>
+				<button class="auth-btn" @click="handleLogin">Login</button>
 			</div>
 		</div>
 
@@ -100,14 +99,14 @@
 							<line x1="19" y1="12" x2="5" y2="12"></line>
 							<polyline points="12 19 5 12 12 5"></polyline>
 						</svg>
-						<span class="hide-mobile">Назад в чат</span>
+						<span class="hide-mobile">Back to Chat</span>
 					</button>
 				</div>
 				<div class="header-center brand">
 					<span class="brand-text">Admin Panel</span>
 				</div>
 				<div class="header-right">
-					<button class="theme-btn" @click="toggleTheme" title="Переключить тему">
+					<button class="theme-btn" @click="toggleTheme" title="Toggle theme">
 						<svg v-if="isDarkTheme" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
 						<svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
 					</button>
@@ -117,28 +116,28 @@
 			<div class="admin-content">
 				<div class="stats-grid">
 					<div class="stat-card">
-						<div class="stat-title">Пользователей</div>
+						<div class="stat-title">Users</div>
 						<div class="stat-value">{{ totalRegistered }}</div>
 					</div>
 					<div class="stat-card">
-						<div class="stat-title">Сейчас онлайн</div>
+						<div class="stat-title">Online Now</div>
 						<div class="stat-value text-accent">{{ onlineCount }}</div>
 					</div>
 					<div class="stat-card">
-						<div class="stat-title">Всего сообщений</div>
+						<div class="stat-title">Total Messages</div>
 						<div class="stat-value text-blue">{{ totalMessages }}</div>
 					</div>
 				</div>
 
 				<div class="users-section">
-					<h2>Управление пользователями</h2>
+					<h2>User Management</h2>
 					<div class="table-container">
 						<table class="users-table">
 							<thead>
 								<tr>
-									<th>Пользователь</th>
-									<th>Статус</th>
-									<th>Действия</th>
+									<th>User</th>
+									<th>Status</th>
+									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -149,17 +148,17 @@
 									</td>
 									<td>
 										<div class="status-badge" :class="user.isOnline ? 'online' : 'offline'">
-											{{ user.isOnline ? 'Онлайн' : 'Оффлайн' }}
+											{{ user.isOnline ? 'Online' : 'Offline' }}
 										</div>
-										<div v-if="user.isBanned" class="banned-text">Забанен</div>
+										<div v-if="user.isBanned" class="banned-text">Banned</div>
 									</td>
 									<td>
-										<button 
-											class="action-btn" 
+										<button
+											class="action-btn"
 											:class="user.isBanned ? 'unban-btn' : 'ban-btn'"
 											@click="handleBanUser(user)"
 										>
-											{{ user.isBanned ? 'Разбанить' : 'Бан' }}
+											{{ user.isBanned ? 'Unban' : 'Ban' }}
 										</button>
 									</td>
 								</tr>
@@ -169,200 +168,350 @@
 				</div>
 			</div>
 		</template>
-
 	</div>
 </template>
 
 <style scoped>
-/* ПЕРЕМЕННЫЕ */
-.app-layout {
-	--bg-base: #050807;
-	--bg-surface: #080b0a;
-	--border: #0f1714;
-	--bg-active: #1a231e;
-	--text-primary: #c8c2b8;
-	--text-secondary: #64615c;
-	--text-muted: #8a867f;
-	--accent: #5fca08;
-	--accent-hover: #4da806;
-	--danger: #dc3545;
-	--blue: #3b82f6;
-	
-	display: flex;
-	flex-direction: column;
-	height: 100dvh;
-	background-color: var(--bg-base);
-	color: var(--text-primary);
-	transition: all 0.3s ease;
-	overflow: hidden;
-}
+	.app-layout {
+		display: flex;
+		height: 100dvh;
+		flex-direction: column;
+		overflow: hidden;
+		color: var(--color-text-primary);
+		background-color: var(--color-bg-primary);
+		transition: all 0.3s ease;
+	}
 
-.app-layout.light-theme {
-	--bg-base: #f4f7f6;
-	--bg-surface: #ffffff;
-	--border: #e2e8e4;
-	--bg-active: #e8f5e9;
-	--text-primary: #1a231e;
-	--text-secondary: #6b7280;
-	--text-muted: #4b5563;
-	--accent: #5fca08; 
-	--blue: #2563eb;
-}
+	.auth-overlay {
+		position: relative;
+		display: flex;
+		flex: 1;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+	}
+	.absolute-theme-btn {
+		position: absolute;
+		top: 20px;
+		right: 20px;
+	}
+	.absolute-back-btn {
+		position: absolute;
+		top: 20px;
+		left: 20px;
+	}
 
-.auth-overlay {
-	flex: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	position: relative;
-	padding: 20px;
-}
-.absolute-theme-btn { position: absolute; top: 20px; right: 20px; }
-.absolute-back-btn { position: absolute; top: 20px; left: 20px; }
+	.auth-box {
+		width: 100%;
+		max-width: 400px;
+		padding: 40px;
+		text-align: center;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 16px;
+		box-shadow: var(--shadow-xl);
+	}
+	.auth-box h2 {
+		margin-bottom: 10px;
+		color: var(--color-primary);
+	}
+	.auth-box p {
+		margin-bottom: 24px;
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+	}
 
-.auth-box {
-	background: var(--bg-surface);
-	border: 1px solid var(--border);
-	padding: 40px;
-	border-radius: 16px;
-	width: 100%;
-	max-width: 400px;
-	text-align: center;
-	box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.app-layout.light-theme .auth-box { box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-.auth-box h2 { margin-bottom: 10px; color: var(--accent); }
-.auth-box p { color: var(--text-secondary); margin-bottom: 24px; font-size: 14px; }
+	.auth-input {
+		width: 100%;
+		padding: 12px 16px;
+		margin-bottom: 16px;
+		color: var(--color-text-primary);
+		background: var(--color-bg-primary);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		font-size: var(--font-size-lg);
+		outline: none;
+		box-sizing: border-box;
+	}
+	.auth-input:focus {
+		border-color: var(--color-primary);
+	}
 
-.auth-input {
-	width: 100%;
-	padding: 12px 16px;
-	background: var(--bg-base);
-	border: 1px solid var(--border);
-	color: var(--text-primary);
-	border-radius: 8px;
-	margin-bottom: 16px;
-	font-size: 16px;
-	outline: none;
-	box-sizing: border-box;
-}
-.auth-input:focus { border-color: var(--accent); }
+	.error-msg {
+		display: block;
+		margin-top: -10px;
+		margin-bottom: 16px;
+		color: var(--color-error);
+		font-size: var(--font-size-sm);
+	}
 
-.error-msg { display: block; color: var(--danger); font-size: 13px; margin-top: -10px; margin-bottom: 16px; }
+	.auth-btn {
+		width: 100%;
+		padding: 12px;
+		color: var(--color-text-contrast);
+		background: var(--color-primary);
+		border: none;
+		border-radius: 8px;
+		font-size: var(--font-size-lg);
+		font-weight: var(--font-weight-bold);
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+	.auth-btn:hover {
+		background: var(--color-primary-hover);
+	}
 
-.auth-btn {
-	width: 100%;
-	padding: 12px;
-	background: var(--accent);
-	color: white;
-	border: none;
-	border-radius: 8px;
-	font-size: 16px;
-	font-weight: bold;
-	cursor: pointer;
-	transition: background 0.2s;
-}
-.auth-btn:hover { background: var(--accent-hover); }
+	.chat-header {
+		display: flex;
+		height: 70px;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 24px;
+		background-color: var(--color-bg-secondary);
+		border-bottom: 1px solid var(--color-border);
+	}
+	.header-left,
+	.header-right {
+		display: flex;
+		flex: 1;
+		align-items: center;
+	}
+	.header-right {
+		justify-content: flex-end;
+	}
+	.header-center {
+		display: flex;
+		flex: 1;
+		justify-content: center;
+	}
 
-.chat-header {
-	height: 70px; padding: 0 24px; border-bottom: 1px solid var(--border);
-	display: flex; justify-content: space-between; align-items: center;
-	background-color: var(--bg-surface); flex-shrink: 0;
-}
-.header-left, .header-right { flex: 1; display: flex; align-items: center; }
-.header-right { justify-content: flex-end; }
-.header-center { flex: 1; display: flex; justify-content: center; }
+	.back-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: var(--color-text-secondary);
+		font-size: 15px;
+		font-weight: var(--font-weight-medium);
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		transition: color 0.2s;
+	}
+	.back-btn:hover {
+		color: var(--color-text-primary);
+	}
+	.brand-text {
+		color: var(--color-text-primary);
+		font-size: 20px;
+		font-weight: var(--font-weight-bold);
+	}
 
-.back-btn {
-	background: transparent; border: none; color: var(--text-secondary);
-	display: flex; align-items: center; gap: 8px; cursor: pointer;
-	font-size: 15px; font-weight: 500; transition: color 0.2s;
-}
-.back-btn:hover { color: var(--text-primary); }
-.brand-text { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+	.theme-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 6px;
+		color: var(--color-text-tertiary);
+		background: transparent;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+	.theme-btn:hover {
+		color: var(--color-primary);
+		background: var(--color-border);
+	}
 
-.theme-btn {
-	background: transparent; border: none; cursor: pointer; padding: 6px;
-	border-radius: 8px; transition: all 0.2s ease; display: flex;
-	align-items: center; justify-content: center; color: #64615c; 
-}
-.theme-btn:hover { background: var(--border); color: var(--accent); }
-.app-layout.light-theme .theme-btn { color: #8a867f; }
-.app-layout.light-theme .theme-btn:hover { color: var(--accent); background: #e2e8e4; }
+	.admin-content {
+		width: 100%;
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 30px 24px;
+		overflow-y: auto;
+		box-sizing: border-box;
+	}
 
-.admin-content {
-	padding: 30px 24px;
-	max-width: 1000px;
-	margin: 0 auto;
-	width: 100%;
-	overflow-y: auto;
-	box-sizing: border-box;
-}
+	.stats-grid {
+		display: grid;
+		gap: 20px;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		margin-bottom: 40px;
+	}
+	.stat-card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+		text-align: center;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 12px;
+	}
+	.stat-title {
+		margin-bottom: 8px;
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-semibold);
+		text-transform: uppercase;
+	}
+	.stat-value {
+		font-size: 32px;
+		font-weight: var(--font-weight-bold);
+	}
+	.text-accent {
+		color: var(--color-primary);
+	}
+	.text-blue {
+		color: var(--color-info);
+	}
 
-.stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 20px;
-	margin-bottom: 40px;
-}
-.stat-card {
-	background: var(--bg-surface); border: 1px solid var(--border);
-	border-radius: 12px; padding: 24px; display: flex; flex-direction: column;
-	align-items: center; justify-content: center; text-align: center;
-}
-.stat-title { color: var(--text-secondary); font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
-.stat-value { font-size: 32px; font-weight: 700; }
-.text-accent { color: var(--accent); }
-.text-blue { color: var(--blue); }
+	.users-section h2 {
+		margin-bottom: 20px;
+		font-size: 20px;
+	}
 
-.users-section h2 { margin-bottom: 20px; font-size: 20px; }
+	.table-container {
+		overflow-x: auto;
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 12px;
+	}
 
-.table-container {
-	background: var(--bg-surface);
-	border: 1px solid var(--border);
-	border-radius: 12px;
-	overflow-x: auto;
-}
+	.users-table {
+		width: 100%;
+		min-width: 500px;
+		text-align: left;
+		border-collapse: collapse;
+	}
+	.users-table th,
+	.users-table td {
+		padding: 16px;
+		border-bottom: 1px solid var(--color-border);
+	}
+	.users-table th {
+		color: var(--color-text-secondary);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-semibold);
+		white-space: nowrap;
+	}
+	.users-table tr:last-child td {
+		border-bottom: none;
+	}
+	.users-table tr:hover {
+		background: var(--color-bg-tertiary);
+	}
+	.users-table tr.is-banned td {
+		opacity: 0.6;
+	}
 
-.users-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 500px; }
-.users-table th, .users-table td { padding: 16px; border-bottom: 1px solid var(--border); }
-.users-table th { color: var(--text-secondary); font-weight: 600; font-size: 14px; white-space: nowrap; }
-.users-table tr:last-child td { border-bottom: none; }
-.users-table tr:hover { background: var(--bg-active); }
-.users-table tr.is-banned td { opacity: 0.6; }
+	.user-name {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		font-weight: var(--font-weight-medium);
+	}
+	.avatar {
+		display: flex;
+		width: 32px;
+		height: 32px;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		background: var(--color-bg-tertiary);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		font-weight: var(--font-weight-bold);
+	}
+	.u-name-text {
+		word-break: break-all;
+	}
 
-.user-name { display: flex; align-items: center; gap: 12px; font-weight: 500; }
-.avatar {
-	width: 32px; height: 32px; border-radius: 8px; background: var(--bg-active);
-	display: flex; align-items: center; justify-content: center;
-	font-weight: bold; border: 1px solid var(--border); flex-shrink: 0;
-}
-.u-name-text { word-break: break-all; }
+	.status-badge {
+		display: inline-flex;
+		padding: 4px 8px;
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-semibold);
+		border-radius: 6px;
+	}
+	.status-badge.online {
+		color: var(--color-success);
+		background: rgba(34, 197, 94, 0.1);
+	}
+	.status-badge.offline {
+		color: var(--color-text-tertiary);
+		background: var(--color-bg-tertiary);
+	}
+	.banned-text {
+		margin-top: 4px;
+		color: var(--color-error);
+		font-size: var(--font-size-xs);
+		font-weight: var(--font-weight-bold);
+	}
 
-.status-badge { display: inline-flex; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-.status-badge.online { background: rgba(95, 202, 8, 0.1); color: var(--accent); }
-.status-badge.offline { background: var(--bg-active); color: var(--text-muted); }
-.banned-text { color: var(--danger); font-size: 12px; font-weight: bold; margin-top: 4px; }
+	.action-btn {
+		padding: 8px 16px;
+		font-weight: var(--font-weight-semibold);
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: all 0.2s;
+	}
+	.ban-btn {
+		color: var(--color-error);
+		background: rgba(239, 68, 68, 0.1);
+	}
+	.ban-btn:hover {
+		color: white;
+		background: var(--color-error);
+	}
+	.unban-btn {
+		color: var(--color-text-primary);
+		background: var(--color-border);
+	}
+	.unban-btn:hover {
+		color: white;
+		background: var(--color-text-secondary);
+	}
 
-.action-btn { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.ban-btn { background: rgba(220, 53, 69, 0.1); color: var(--danger); }
-.ban-btn:hover { background: var(--danger); color: white; }
-.unban-btn { background: var(--border); color: var(--text-primary); }
-.unban-btn:hover { background: var(--text-secondary); color: white; }
+	@media (max-width: 600px) {
+		.chat-header {
+			padding: 0 16px;
+		}
+		.hide-mobile {
+			display: none;
+		}
 
-@media (max-width: 600px) {
-	.chat-header { padding: 0 16px; }
-	.hide-mobile { display: none; }
-	
-	.admin-content { padding: 20px 16px; }
-	
-	.stats-grid { grid-template-columns: 1fr; gap: 12px; }
-	.stat-card { padding: 16px; }
-	.stat-value { font-size: 28px; }
+		.admin-content {
+			padding: 20px 16px;
+		}
 
-	.users-table th, .users-table td { padding: 12px; }
-	.action-btn { padding: 8px 12px; font-size: 13px; }
-	
-	.auth-box { padding: 30px 20px; border-radius: 12px; }
-}
+		.stats-grid {
+			gap: 12px;
+			grid-template-columns: 1fr;
+		}
+		.stat-card {
+			padding: 16px;
+		}
+		.stat-value {
+			font-size: 28px;
+		}
+
+		.users-table th,
+		.users-table td {
+			padding: 12px;
+		}
+		.action-btn {
+			padding: 8px 12px;
+			font-size: var(--font-size-sm);
+		}
+
+		.auth-box {
+			padding: 30px 20px;
+			border-radius: 12px;
+		}
+	}
 </style>

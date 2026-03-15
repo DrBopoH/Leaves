@@ -49,38 +49,40 @@
 </template>
 
 <style scoped>
-	.debug-page-wrapper {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-		width: 100vw;
-		overflow: hidden;
-		box-sizing: border-box;
-	}
+    .debug-page-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
 
-	.landing-navbar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		width: 100%;
-		height: 60px;
-		z-index: 100;
-		display: flex;
-		justify-content: space-between;
-		backdrop-filter: blur(12px);
-		transition:
-			background-color var(--theme-transition-duration) ease,
-			border-color var(--theme-transition-duration) ease,
-			backdrop-filter var(--theme-transition-duration) ease;
-	}
+    .landing-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 60px;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        background-color: var(--color-overlay); 
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--color-border);
+    }
 
-	.logo-link {
-		text-decoration: none;
-		display: flex;
-	}
+    .logo-link {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding-left: 20px;
+    }
 
-	.nav-links {
-		display: flex;
-	}
+    .nav-links {
+        display: flex;
+        align-items: center;
+        padding-right: 20px;
+    }
 </style>
