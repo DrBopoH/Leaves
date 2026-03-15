@@ -9,20 +9,26 @@ type Theme = 'dark' | 'light';
 const currentTheme = ref<Theme>((localStorage.getItem('theme') as Theme) || 'dark');
 
 export function useTheme() {
-	const isDark = computed(() => currentTheme.value === 'dark');
+	const isDark = computed(
+		() => currentTheme.value === 'dark'
+	);
 
 	const toggleTheme = () => {
 		currentTheme.value = isDark.value ? 'light' : 'dark';
 	};
 
 	watch(currentTheme, (newTheme) => {
-		if (newTheme === 'dark') {
-			document.documentElement.removeAttribute('data-theme');
-		} else {
-			document.documentElement.setAttribute('data-theme', newTheme);
+			if (newTheme === 'dark') {
+				document.documentElement.removeAttribute('data-theme');
+			} else {
+				document.documentElement.setAttribute('data-theme', newTheme);
+			}
+			localStorage.setItem('theme', newTheme);
+		}, 
+		{ 
+			immediate: true 
 		}
-		localStorage.setItem('theme', newTheme);
-	}, { immediate: true });
+	);
 
 	return {
 		isDark,

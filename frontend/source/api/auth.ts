@@ -80,14 +80,16 @@ export const fetchMe = async () => {
 		});
 
 		if (!response.ok) {
-			return null;
+			const errorData = await response.json().catch(() => ({}));
+			console.error('Failed to fetch user session:', response.status, errorData.message || response.statusText);
+			throw new Error(errorData.message || 'Failed to verify session.');
 		}
 
 		const data = await response.json();
 		return data.user;
-	} catch (error) {
-		console.warn('Failed to verify session. Assuming unauthenticated.');
-		return null;
+	} catch (error: any) {
+		console.error('Error in fetchMe:', error);
+		throw error;
 	}
 };
 
