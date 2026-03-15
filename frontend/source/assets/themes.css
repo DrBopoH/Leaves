@@ -1,45 +1,36 @@
 :root {
-	/* Backgrounds */
 	--color-bg: #050807;
 	--color-surface: #080b0a;
 	--color-surface-hover: #0f1714;
 
-	/* Borders */
 	--color-border: #0f1714;
 	--color-border-hover: #1f2a24;
 
-	/* Text */
 	--color-text-primary: #c8c2b8;
 	--color-text-secondary: #8a867f;
 	--color-text-inverse: #050807;
 
-	/* Accent */
 	--color-accent: #5fca08;
 	--color-accent-hover: #73e01b;
 	--color-accent-shadow: rgba(95, 202, 8, 0.3);
 	--color-accent-alpha: rgba(95, 202, 8, 0.1);
 
-	/* Status */
 	--color-status-online: #5fca08;
 	--color-status-offline: #8a867f;
 	--color-status-away: #f39c12;
 	--color-status-dnd: #e74c3c;
 	--color-status-error: #ff5555;
 
-	/* Transparencies */
-	--color-overlay: rgba(5, 8, 7, 0.8);
+	--color-overlay: rgba(5, 8, 7, 0.6);
 
-	/* Components */
 	--avatar-lightness: 65%;
 
-	/* Font Weights */
 	--font-weight-normal: 400;
 	--font-weight-medium: 500;
 	--font-weight-semibold: 600;
 	--font-weight-bold: 700;
 	--font-weight-extrabold: 800;
 
-	/* Font Sizes */
 	--font-size-xs: 12px;
 	--font-size-sm: 13px;
 	--font-size-base: 14px;
@@ -52,63 +43,51 @@
 	--font-size-h1: 2.5rem;
 	--font-size-hero: 3.5rem;
 
-	/* Line Heights */
 	--line-height-sm: 1.2;
 	--line-height-base: 1.4;
 	--line-height-md: 1.5;
 	--line-height-lg: 1.6;
 
-	/* Letter Spacing */
 	--letter-spacing-tight: -1px;
 	--letter-spacing-base: 0.3px;
 	--letter-spacing-wide: 0.5px;
 
-	/* Theme Transitions */
 	--theme-transition-duration: 0.3s;
 }
 
 [data-theme="light"] {
-	/* Backgrounds */
 	--color-bg: #f4f7f6;
 	--color-surface: #ebf0ee;
 	--color-surface-hover: #e2e8e4;
 
-	/* Borders */
 	--color-border: #e2e8e4;
 	--color-border-hover: #d1dad5;
 
-	/* Text */
 	--color-text-primary: #080b0a;
 	--color-text-secondary: #4b5563;
 	--color-text-inverse: #f4f7f6;
 
-	/* Accent */
 	--color-accent: #4da806;
 	--color-accent-hover: #5fca08;
 	--color-accent-shadow: rgba(77, 168, 6, 0.3);
 	--color-accent-alpha: rgba(77, 168, 6, 0.1);
 
-	/* Status */
 	--color-status-online: #4da806;
 	--color-status-offline: #4b5563;
 	--color-status-away: #e67e22;
 	--color-status-dnd: #c0392b;
 	--color-status-error: #e74c3c;
 
-	/* Transparencies */
-	--color-overlay: rgba(244, 247, 246, 0.8);
+	--color-overlay: rgba(244, 247, 246, 0.6);
 
-	/* Components */
 	--avatar-lightness: 40%;
 
-	/* Font Weights */
 	--font-weight-normal: 400;
 	--font-weight-medium: 500;
 	--font-weight-semibold: 600;
 	--font-weight-bold: 700;
 	--font-weight-extrabold: 800;
 
-	/* Font Sizes */
 	--font-size-xs: 12px;
 	--font-size-sm: 13px;
 	--font-size-base: 14px;
@@ -121,18 +100,15 @@
 	--font-size-h1: 2.5rem;
 	--font-size-hero: 3.5rem;
 
-	/* Line Heights */
 	--line-height-sm: 1.2;
 	--line-height-base: 1.4;
 	--line-height-md: 1.5;
 	--line-height-lg: 1.6;
 
-	/* Letter Spacing */
 	--letter-spacing-tight: -1px;
 	--letter-spacing-base: 0.3px;
 	--letter-spacing-wide: 0.5px;
 
-	/* Theme Transitions */
 	--theme-transition-duration: 0.3s;
 }
 
