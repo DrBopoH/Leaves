@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"sync"
@@ -112,11 +113,13 @@ func Signup(db *sql.DB) http.HandlerFunc {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("[EE] Signup: Error hashing password: %v", err)
 			return
 		}
 
 		_, err = db.Exec("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)", req.Username, req.Email, string(hashedPassword))
 		if err != nil {
+			log.Printf("[WW] Signup: Failed to create user %s (email: %s), error: %v", req.Username, req.Email, err)
 			w.WriteHeader(http.StatusConflict)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "User with this email already exists"})
 			return
@@ -150,12 +153,14 @@ func Signin(db *sql.DB) http.HandlerFunc {
 
 		err := db.QueryRow("SELECT id, username, password_hash FROM users WHERE email = ?", req.Email).Scan(&user.ID, &user.Username, &user.PasswordHash)
 		if err != nil {
+			log.Printf("[WW] Signin: User with email %s not found or DB error: %v", req.Email, err)
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid email or password"})
 			return
 		}
 
 		if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+			log.Printf("[WW] Signin: Password mismatch for user %s (email: %s)", user.Username, req.Email)
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid email or password"})
 			return
@@ -164,6 +169,7 @@ func Signin(db *sql.DB) http.HandlerFunc {
 		tokenString, expirationTime, err := auth.GenerateToken(user.ID, user.Username, req.RememberMe)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Printf("[EE] Signin: Error generating token for user %d: %v", user.ID, err)
 			return
 		}
 
@@ -192,17 +198,21 @@ func Me() http.HandlerFunc {
 
 		cookie, err := r.Cookie("auth_token")
 		if err != nil {
+			log.Printf("[WW] Me: Auth token cookie not found: %v", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Unauthorized"})
 			return
 		}
+		log.Printf("[II] Me: Auth token cookie found. Value length: %d", len(cookie.Value))
 
 		claims, err := auth.ParseToken(cookie.Value)
 		if err != nil {
+			log.Printf("[WW] Me: Invalid token received: %v", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(AuthResponse{Status: "error", Message: "Invalid token"})
 			return
 		}
+		log.Printf("[II] Me: Token successfully parsed for UserID: %d, Username: %s", claims.UserID, claims.Username)
 
 		json.NewEncoder(w).Encode(map[string]any{
 			"status": "success",
