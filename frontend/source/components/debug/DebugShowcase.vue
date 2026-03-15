@@ -113,7 +113,7 @@
         display: flex;
         flex-direction: column;
         gap: 40px;
-        padding: 40px;
+        padding: 80px;
     }
 
     .toc-card {

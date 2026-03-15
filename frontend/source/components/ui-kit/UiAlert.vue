@@ -3,7 +3,6 @@
 	// SPDX-License-Identifier: AGPL-3.0-or-later
 
 	// source/components/ui-kit/UiAlert.vue
-
 	const props = defineProps<{
 		type?: 'error' | 'success' | 'warning' | 'info';
 		message?: string;
@@ -29,11 +28,12 @@
 
 <style scoped>
 .ui-alert-reservoir {
-	display: grid;
-	grid-template-rows: 0fr;
-	transition: grid-template-rows 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
-	opacity: 0;
 	pointer-events: none;
+	opacity: 0;
+	transition: 
+		grid-template-rows 0.3s ease, 
+		margin 0.3s ease, 
+		opacity 0.3s ease;
 }
 
 .ui-alert-reservoir.is-visible {
@@ -59,22 +59,18 @@
 	padding: 2px 0;
 }
 
-/* Variant: Error */
 .type-error .alert-text {
 	color: var(--color-status-error);
 }
 
-/* Variant: Warning */
 .type-warning .alert-text {
 	color: var(--color-status-away);
 }
 
-/* Variant: Success */
 .type-success .alert-text {
 	color: var(--color-status-online);
 }
 
-/* Variant: Info */
 .type-info .alert-text {
 	color: var(--color-text-secondary);
 }

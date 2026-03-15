@@ -46,59 +46,45 @@
         </div>
     </div>
 </template>
+
 <style scoped>
-	.debug-section {
-		background: rgba(100, 100, 100, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.05);
-		border-radius: 12px;
-		overflow: hidden;
-		transition: background-color 0.3s ease;
-	}
+    .debug-section {
+        background-color: var(--color-surface);
+        overflow: hidden;
+    }
 
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 12px 20px;
-		background: rgba(0, 0, 0, 0.2);
-		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-	}
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        background-color: var(--color-bg); 
+    }
 
-	.section-title {
-		margin: 0;
-		color: #fff;
-		font-weight: 500;
-	}
+    .section-title {
+        color: var(--color-text-primary);
+        font-weight: var(--font-weight-medium);
+    }
 
-	.bookmark-btn {
-		background: none;
-		border: none;
-		color: rgba(255, 255, 255, 0.3);
-		cursor: pointer;
-		padding: 4px;
-		border-radius: 4px;
-		transition: all 0.2s ease;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+    .bookmark-btn {
+        background: none;
+        border: none;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-	.bookmark-btn svg {
-		width: 18px;
-		height: 18px;
-	}
+    .bookmark-btn svg {
+        width: 18px;
+        height: 18px;
+    }
 
-	.bookmark-btn:hover {
-		color: #fff;
-		background: rgba(255, 255, 255, 0.1);
-	}
+    .bookmark-btn:hover {
+        color: var(--color-text-primary);
+        background-color: var(--color-surface-hover);
+    }
 
-	.bookmark-btn.active {
-		color: var(--color-accent, #ffb86c);
-		fill: var(--color-accent, #ffb86c);
-	}
-
-	.section-body {
-		padding: 20px;
-	}
+    .bookmark-btn.active {
+        color: var(--color-accent); 
+    }
 </style>

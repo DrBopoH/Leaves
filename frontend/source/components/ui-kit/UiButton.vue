@@ -1,22 +1,22 @@
 <script setup lang="ts">
-// Copyright (C) 2026 MorangTong Creative Studio
-// SPDX-License-Identifier: AGPL-3.0-or-later
+	// Copyright (C) 2026 MorangTong Creative Studio
+	// SPDX-License-Identifier: AGPL-3.0-or-later
 
-// source/components/ui-kit/UiButton.vue
+	// source/components/ui-kit/UiButton.vue
 
-import UiLoader from './UiLoader.vue';
+	import UiLoader from './UiLoader.vue';
 
-const props = defineProps<{
-	isLoading?: boolean;
-	disabled?: boolean;
-	type?: 'button' | 'submit' | 'reset';
-	variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-	size?: 'small' | 'medium' | 'large';
-}>();
+	const props = defineProps<{
+		isLoading?: boolean;
+		disabled?: boolean;
+		type?: 'button' | 'submit' | 'reset';
+		variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+		size?: 'small' | 'medium' | 'large';
+	}>();
 
-const emit = defineEmits<{
-	(e: 'click', event: MouseEvent): void;
-}>();
+	const emit = defineEmits<{
+		(e: 'click', event: MouseEvent): void;
+	}>();
 </script>
 
 <template>
@@ -42,103 +42,99 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
-.ui-button {
-	position: relative;
-	border: none;
-	font-weight: 600;
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	transition: background-color var(--theme-transition-duration) ease, color var(--theme-transition-duration) ease, border-color var(--theme-transition-duration) ease, box-shadow var(--theme-transition-duration) ease, transform 0.1s ease;
-	outline: none;
-}
+	.ui-button {
+		position: relative;
+		border: none;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-family: inherit;
+		font-weight: var(--font-weight-medium);
+	}
 
-/* Sizes */
-.size-small {
-	border-radius: 16px;
-	padding: 6px 12px;
-	font-size: 13px;
-}
+	.size-small {
+		border-radius: 16px;
+		padding: 6px 12px;
+		font-size: var(--font-size-sm);
+	}
 
-.size-medium {
-	border-radius: 20px;
-	padding: 10px 20px;
-	font-size: 14px;
-}
+	.size-medium {
+		border-radius: 20px;
+		padding: 10px 20px;
+		font-size: var(--font-size-base);
+	}
 
-.size-large {
-	border-radius: 30px;
-	padding: 14px 32px;
-	font-size: 16px;
-}
+	.size-large {
+		border-radius: 30px;
+		padding: 14px 32px;
+		font-size: var(--font-size-lg);
+	}
 
-.content {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	transition: opacity 0.2s;
-}
+	.content {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
 
-.loader {
-	position: absolute;
-	width: 24px;
-	height: 24px;
-}
+	.loader {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-/* Primary Variant (CTA Style) */
-.variant-primary {
-	background-color: transparent;
-	color: var(--color-accent);
-	border: 2px solid var(--color-accent);
-	box-shadow: 0 0 15px var(--color-accent-shadow);
-	transition: background-color var(--theme-transition-duration) ease, color var(--theme-transition-duration) ease, border var(--theme-transition-duration) ease, box-shadow var(--theme-transition-duration) ease, transform 0.1s ease;
-}
+	.variant-primary {
+		background-color: transparent;
+		color: var(--color-accent);
+		border: 2px solid var(--color-accent);
+		box-shadow: 0 0 15px var(--color-accent-shadow);
+	}
 
-.variant-primary:hover:not(:disabled) {
-	background-color: var(--color-accent);
-	color: var(--color-text-inverse);
-	box-shadow: 0 0 30px var(--color-accent-shadow);
-	transform: translateY(-3px);
-}
+	.variant-primary:hover:not(:disabled) {
+		background-color: var(--color-accent);
+		color: var(--color-text-inverse);
+		box-shadow: 0 0 30px var(--color-accent-shadow);
+		transform: translateY(-3px);
+	}
 
-/* Secondary Variant */
-.variant-secondary {
-	background-color: var(--color-surface);
-	color: var(--color-text-primary);
-	border: 1px solid var(--color-border);
-}
+	.variant-secondary {
+		background-color: var(--color-surface);
+		color: var(--color-text-primary);
+		border: 1px solid var(--color-border);
+	}
 
-.variant-secondary:hover:not(:disabled) {
-	border-color: var(--color-text-secondary);
-}
+	.variant-secondary:hover:not(:disabled) {
+		border-color: var(--color-text-secondary);
+	}
 
-/* Outline Variant */
-.variant-outline {
-	background-color: transparent;
-	color: var(--color-text-primary);
-	border: 1px solid var(--color-border);
-}
+	.variant-outline {
+		background-color: transparent;
+		color: var(--color-text-primary);
+		border: 1px solid var(--color-border);
+	}
 
-.variant-outline:hover:not(:disabled) {
-	background-color: var(--color-surface-hover);
-	border-color: var(--color-accent);
-	color: var(--color-accent);
-}
+	.variant-outline:hover:not(:disabled) {
+		background-color: var(--color-surface-hover);
+		border-color: var(--color-accent);
+		color: var(--color-accent);
+	}
 
-/* Ghost Variant */
-.variant-ghost {
-	background-color: transparent;
-	color: var(--color-text-primary);
-}
+	.variant-ghost {
+		background-color: transparent;
+		color: var(--color-text-primary);
+	}
 
-.variant-ghost:hover:not(:disabled) {
-	background-color: var(--color-surface);
-}
+	.variant-ghost:hover:not(:disabled) {
+		background-color: var(--color-surface);
+	}
 
-/* Disabled State */
-.ui-button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
+	.ui-button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: translateY(0);
+	}
 </style>
