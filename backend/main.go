@@ -117,9 +117,7 @@ func main() {
 	mux.HandleFunc("GET /users", handlers.GetUsers(database.DB))
 	mux.HandleFunc("GET /me", handlers.Me())
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"alive","service":"Leaves"}`))
+		w.WriteHeader(http.StatusNoContent)
 	})
 
 	mux.HandleFunc("/ws", handlers.HandleWebSocket(database.DB))
